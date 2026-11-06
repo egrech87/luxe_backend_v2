@@ -62,6 +62,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			colorGroup.DELETE("/soft/:color_id", colorController.SoftDelete)
 			colorGroup.GET("/", colorController.Get)
 			colorGroup.GET("/by/id/:color_id", colorController.GetById)
+			colorGroup.POST("/duplicate/:color_id", colorController.Duplicate)
 		}
 		glassGroup := basicAuthGroup.Group("/glasses")
 		{
@@ -70,6 +71,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			glassGroup.DELETE("/soft/:glass_id", glassController.SoftDelete)
 			glassGroup.GET("/", glassController.Get)
 			glassGroup.GET("/by/id/:glass_id", glassController.GetById)
+			glassGroup.POST("/duplicate/:glass_id", glassController.Duplicate)
 		}
 		profileGroup := basicAuthGroup.Group("/profiles")
 		{
@@ -78,6 +80,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			profileGroup.DELETE("/soft/:profile_id", profileController.SoftDelete)
 			profileGroup.GET("/", profileController.Get)
 			profileGroup.GET("/by/id/:profile_id", profileController.GetById)
+			profileGroup.POST("/duplicate/:profile_id", profileController.Duplicate)
 
 			priceMatrixGroup := profileGroup.Group("/price-matrix")
 			{

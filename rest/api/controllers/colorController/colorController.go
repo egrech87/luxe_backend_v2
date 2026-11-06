@@ -38,6 +38,10 @@ func Update(c *gin.Context) {
 	baseController.Update(c, "color_id", GetNewModel(), GetDao(), GetSystemFields(), withAuthorisation)
 }
 
+func Duplicate(c *gin.Context) {
+	baseController.Duplicate(c, "color_id", colorDao.GetInstance(), withAuthorisation)
+}
+
 func SoftDelete(c *gin.Context) {
 	baseController.SoftDelete(c, "color_id", GetDao(), withAuthorisation)
 }

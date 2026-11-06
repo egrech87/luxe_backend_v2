@@ -71,6 +71,10 @@ func (d *ProfileDao) Create(ctx context.Context, profile baseEntity.BaseEntityI,
 	return d.BaseDao.Create(ctx, profile, createdBy)
 }
 
+func (d *ProfileDao) Duplicate(ctx context.Context, id uint64, createdBy uint64) (uint64, bool, error) {
+	return d.BaseDao.Duplicate(ctx, d, id, createdBy)
+}
+
 func (d *ProfileDao) Update(ctx context.Context, id uint64, profile baseEntity.BaseEntityI, fieldsToUpdate []string, updatedBy uint64) error {
 	return d.BaseDao.Update(ctx, d.TableName(), id, profile, fieldsToUpdate, updatedBy)
 }
