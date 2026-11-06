@@ -1,6 +1,7 @@
 package anyUtils
 
 import (
+	"Quote/utils/int64Array"
 	"Quote/utils/timeUtils"
 	"fmt"
 	"reflect"
@@ -350,4 +351,44 @@ func isNilInterface(value any) bool {
 	default:
 		return false
 	}
+}
+
+// ToInt64Array converts JSON / database values to an Int64Array. A nil value gives an empty array.
+func ToInt64Array(value any) (int64Array.Int64Array, error) {
+	switch value := value.(type) {
+	case nil:
+		return int64Array.Int64Array{}, nil
+	case int64Array.Int64Array:
+		return value, nil
+	case []int64:
+		return int64Array.Int64Array(value), nil
+	case []int:
+		result := make(int64Array.Int64Array, len(value))
+		for i, v := range value {
+			result[i] = int64(v)
+		}
+		return result, nil
+	case []any:
+		result := make(int64Array.Int64Array, 0, len(value))
+		for _, item := range value {
+			if v, ok := item.(int); ok {
+				result = append(result, int64(v))
+				continue
+			}
+			num, err := ToInt64(item)
+			if err != nil {
+				return result, err
+			}
+			result = append(result, num)
+		}
+		return result, nil
+	case string, []byte:
+		var result int64Array.Int64Array
+		if err := result.Scan(value); err != nil {
+			return nil, err
+		}
+		return result, nil
+	}
+
+	return nil, fmt.Errorf("failed to convert %v to an int64 array", value)
 }

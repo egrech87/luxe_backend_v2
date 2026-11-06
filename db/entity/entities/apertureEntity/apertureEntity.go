@@ -10,8 +10,10 @@ import (
 	"Quote/db/entity/entities/userEntity"
 	"Quote/db/entity/enums/apertureType"
 	handleType "Quote/db/entity/enums/handleTypes"
+	"Quote/utils/int64Array"
 	"Quote/utils/mapUtils"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/fatih/structs"
@@ -32,9 +34,9 @@ type ApertureEntity struct {
 	IsAreaCustom                        bool                         `json:"is_area_custom" structs:"is_area_custom"`
 	OverallUValue                       float64                      `json:"overall_u_value" structs:"overall_u_value"`
 	IsOverallUValueCustom               bool                         `json:"is_overall_u_value_custom" structs:"is_overall_u_value_custom" gorm:"default:false"`
-	ActualWidth                         int                          `json:"actual_width" structs:"actual_width"`
-	ActualHeight                        int                          `json:"actual_height" structs:"actual_height"`
-	Type                                *int                         `json:"type" structs:"type"` // 0 = door; 1 = window
+	ActualWidth                         int64Array.Int64Array        `json:"actual_width" structs:"actual_width" gorm:"type:bigint[]"`   // One value per unit; length = Quantity
+	ActualHeight                        int64Array.Int64Array        `json:"actual_height" structs:"actual_height" gorm:"type:bigint[]"` // One value per unit; length = Quantity
+	Type                                *int                         `json:"type" structs:"type"`                                        // 0 = door; 1 = window
 	IsTypeCustom                        bool                         `json:"is_type_custom" structs:"is_type_custom"`
 	Handle                              *int                         `json:"handle" structs:"handle"` // 0 = left; 1 = right
 	IsHandleCustom                      bool                         `json:"is_handle_custom" structs:"is_handle_custom"`
@@ -162,10 +164,10 @@ func (e *ApertureEntity) GetOverallUValue() float64 {
 func (e *ApertureEntity) GetIsOverallUValueCustom() bool {
 	return e.IsOverallUValueCustom
 }
-func (e *ApertureEntity) GetActualWidth() int {
+func (e *ApertureEntity) GetActualWidth() int64Array.Int64Array {
 	return e.ActualWidth
 }
-func (e *ApertureEntity) GetActualHeight() int {
+func (e *ApertureEntity) GetActualHeight() int64Array.Int64Array {
 	return e.ActualHeight
 }
 func (e *ApertureEntity) GetType() *int {
@@ -411,10 +413,10 @@ func (e *ApertureEntity) SetOverallUValue(value float64) {
 func (e *ApertureEntity) SetIsOverallUValueCustom(value bool) {
 	e.IsOverallUValueCustom = value
 }
-func (e *ApertureEntity) SetActualWidth(value int) {
+func (e *ApertureEntity) SetActualWidth(value int64Array.Int64Array) {
 	e.ActualWidth = value
 }
-func (e *ApertureEntity) SetActualHeight(value int) {
+func (e *ApertureEntity) SetActualHeight(value int64Array.Int64Array) {
 	e.ActualHeight = value
 }
 func (e *ApertureEntity) SetType(value *int) {
@@ -642,6 +644,10 @@ func (e *ApertureEntity) ToJson() map[string]any {
 		json[key] = element
 	}
 
+	// Always return arrays (never null) for the per-unit dimensions
+	json["actual_width"] = nonNilArray(e.ActualWidth)
+	json["actual_height"] = nonNilArray(e.ActualHeight)
+
 	if e.Quote != nil {
 		json["quote"] = e.Quote.ToJson()
 	}
@@ -666,6 +672,18 @@ func (e *ApertureEntity) ToJson() map[string]any {
 	}
 
 	return json
+}
+
+func nonNilArray(value int64Array.Int64Array) int64Array.Int64Array {
+	if value == nil {
+		return int64Array.Int64Array{}
+	}
+	return value
+}
+
+// GetActualAreaSqm returns the summed area (square metres) of all units, using each unit's own actual width and height.
+func (e *ApertureEntity) GetActualAreaSqm() float64 {
+	return int64Array.AreaSqm(e.ActualWidth, e.ActualHeight)
 }
 
 func (e *ApertureEntity) FillFromJson(json map[string]any) error {
@@ -1074,6 +1092,14 @@ func (e *ApertureEntity) Validate() error {
 		}
 	}
 
+	// Validate the actual dimensions: one value per unit
+	if len(e.ActualWidth) != e.Quantity {
+		return errors.Errorf("actual_width must contain exactly %d value(s) (one per unit), but has %d", e.Quantity, len(e.ActualWidth))
+	}
+	if len(e.ActualHeight) != e.Quantity {
+		return errors.Errorf("actual_height must contain exactly %d value(s) (one per unit), but has %d", e.Quantity, len(e.ActualHeight))
+	}
+
 	// Validate the Accessories
 	{
 		lines := strings.Split(e.GetAccessories(), "\n")
@@ -1124,10 +1150,10 @@ func (e *ApertureEntity) GetUpdates(oldItem baseEntity.BaseEntityI) map[string]a
 	if e.IsOverallUValueCustom != oldAperture.IsOverallUValueCustom {
 		updates["is_overall_u_value_custom"] = e.IsOverallUValueCustom
 	}
-	if e.ActualWidth != oldAperture.ActualWidth {
+	if !slices.Equal(e.ActualWidth, oldAperture.ActualWidth) {
 		updates["actual_width"] = e.ActualWidth
 	}
-	if e.ActualHeight != oldAperture.ActualHeight {
+	if !slices.Equal(e.ActualHeight, oldAperture.ActualHeight) {
 		updates["actual_height"] = e.ActualHeight
 	}
 	if e.Type != oldAperture.Type {

@@ -79,6 +79,8 @@ func FieldAnyToType(m map[string]any, fieldName string, basicDataType string) (b
 		convertedValue, err = anyUtils.ToStringArray(originalValue)
 	case "[]int":
 		convertedValue, err = anyUtils.ToIntArray(originalValue)
+	case "int64Array.Int64Array":
+		convertedValue, err = anyUtils.ToInt64Array(originalValue)
 	case "[]uint8":
 		convertedValue, err = anyUtils.ToUInt8Array(originalValue)
 	case "*string":

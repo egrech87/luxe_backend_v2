@@ -559,7 +559,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 			{
 				typeSystem := aperture.Profile.FriendlyName
 
-				reference := fmt.Sprintf("%s-%d-%d-%s", typeSystem, aperture.ActualWidth, aperture.ActualHeight, aperture.Glass.GlazingStructure)
+				reference := fmt.Sprintf("%s-%s-%s-%s", typeSystem, aperture.ActualWidth.Collapsed("/"), aperture.ActualHeight.Collapsed("/"), aperture.Glass.GlazingStructure)
 
 				cellList[0].Text = fmt.Sprintf("BLOCK %s", aperture.Block)
 				cellList[0].Align = "C"
@@ -581,10 +581,10 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 				cellList[5].Text = typeSystem
 				cellList[5].Align = "C"
 
-				cellList[6].Text = formatters.ToReadableNumber_2dp(float64(aperture.ActualWidth))
+				cellList[6].Text = aperture.ActualWidth.Collapsed(", ")
 				cellList[6].Align = "R"
 
-				cellList[7].Text = formatters.ToReadableNumber_2dp(float64(aperture.ActualHeight))
+				cellList[7].Text = aperture.ActualHeight.Collapsed(", ")
 				cellList[7].Align = "R"
 
 				cellList[8].Text = aperture.Glass.GlazingStructure
@@ -596,7 +596,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 				cellList[10].Text = formatters.ToReadableWholeNumber(aperture.Quantity)
 				cellList[10].Align = "C"
 
-				totalArea := float64(aperture.Quantity) * float64(aperture.ActualWidth) * float64(aperture.ActualHeight) / 1000000.0
+				totalArea := aperture.GetActualAreaSqm()
 				cellList[12].Text = formatters.ToReadableNumber_2dp(totalArea)
 				cellList[12].Align = "R"
 
@@ -877,7 +877,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("Unit : %s", aperture.GetUnitFullName()), "", 0, "CM", false, 0, "")
 
 			pdf.SetXY(middleLineX, y)
-			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %dx%d mm", aperture.ActualWidth, aperture.ActualHeight), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %sx%s mm", aperture.ActualWidth.Collapsed("/"), aperture.ActualHeight.Collapsed("/")), "", 0, "CM", false, 0, "")
 
 			y += hLineGap
 		}
@@ -967,7 +967,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 					pdf.Polygon([]fpdf.PointType{{X: x, Y: endY}, {X: x + 1.5, Y: endY - 3}, {X: x, Y: endY - 2}, {X: x - 1.5, Y: endY - 3}}, "F")
 
 					// Write the dimension
-					txt := strconv.Itoa(aperture.ActualHeight)
+					txt := aperture.ActualHeight.Collapsed("/")
 					pdf.SetFontSize(9)
 
 					txtWd := pdf.GetStringWidth(txt)
@@ -1006,7 +1006,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 					pdf.Polygon([]fpdf.PointType{{X: endX, Y: y}, {X: endX - 3, Y: y + 1.5}, {X: endX - 2, Y: y}, {X: endX - 3, Y: y - 1.5}}, "F")
 
 					// Write the dimension
-					txt := strconv.Itoa(aperture.ActualWidth)
+					txt := aperture.ActualWidth.Collapsed("/")
 					pdf.SetFontSize(7)
 
 					txtWd := pdf.GetStringWidth(txt)
@@ -1103,7 +1103,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 			// Area
 			y += lineHt
-			area := float64(aperture.ActualWidth) * float64(aperture.ActualHeight) / 1000000.0
+			area := aperture.GetActualAreaSqm()
 			pdf.SetXY(col1X, y)
 			pdf.CellFormat(col1Width, 2, "Total Area (SQM) :", "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
