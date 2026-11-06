@@ -230,3 +230,33 @@ func Get(c *gin.Context, dao baseDao.BaseDaoI) *daoQuery.Pagination {
 
 	return pagination
 }
+
+// Duplicate creates a persisted copy of the item identified by the path parameter and responds with the new item's id.
+func Duplicate(c *gin.Context, idQueryParameter string, dao baseDao.DuplicableI, withAuthorisation bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), Timeout)
+	defer cancel()
+
+	authUserId, err := GetAuthenticatedId(c)
+	if withAuthorisation && err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	id, err := apiUtils.HttpPathUInt64(c, idQueryParameter)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newId, found, err := dao.Duplicate(ctx, *id, authUserId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to duplicate item: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("item %d not found", *id), http.StatusNotFound)
+		return
+	}
+
+	c.JSON(http.StatusOK, newId)
+}

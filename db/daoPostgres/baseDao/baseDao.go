@@ -26,6 +26,11 @@ type BaseDaoI interface {
 	Read(ctx context.Context, pagination *daoQuery.Pagination, selector *daoQuery.Selector) error
 }
 
+// DuplicableI is implemented by DAOs that can duplicate a single record.
+type DuplicableI interface {
+	Duplicate(ctx context.Context, id uint64, createdBy uint64) (newId uint64, found bool, err error)
+}
+
 type BaseDao struct {
 }
 
@@ -39,6 +44,33 @@ func (d *BaseDao) Create(ctx context.Context, item baseEntity.BaseEntityI, creat
 
 	return tx.Error
 }
+
+// Duplicate inserts a copy of the non-deleted record with the given id, owned by createdBy. found is false if the source does not exist.
+func (d *BaseDao) Duplicate(ctx context.Context, dao BaseDaoI, id uint64, createdBy uint64) (newId uint64, found bool, err error) {
+	tableName := dao.TableName()
+	item := dao.NewEntity()
+
+	result := db.GetDB().WithContext(ctx).Table(tableName).Scopes(d.ById(tableName, id), d.NonDeleted(tableName)).Limit(1).Find(item)
+	if result.Error != nil {
+		return 0, false, result.Error
+	}
+	if result.RowsAffected == 0 {
+		return 0, false, nil
+	}
+
+	item.SetID(0)
+	item.SetCreatedAt(time.Time{})
+	item.SetUpdatedAt(time.Time{})
+	item.SetDeletedAt(nil)
+	item.SetDeletedBy(0)
+
+	if err = d.Create(ctx, item, createdBy); err != nil {
+		return 0, true, err
+	}
+
+	return item.GetID(), true, nil
+}
+
 func (d *BaseDao) Update(ctx context.Context, tableName string, id uint64, item baseEntity.BaseEntityI, fieldsToUpdate []string, updatedBy uint64) error {
 	item.SetUpdatedBy(updatedBy)
 	fieldsToUpdate, _ = arrayUtils.AppendUnique(fieldsToUpdate, "updated_by")

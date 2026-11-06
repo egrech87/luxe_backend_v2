@@ -59,6 +59,10 @@ func (d *ColorDao) Create(ctx context.Context, color baseEntity.BaseEntityI, cre
 	return d.BaseDao.Create(ctx, color, createdBy)
 }
 
+func (d *ColorDao) Duplicate(ctx context.Context, id uint64, createdBy uint64) (uint64, bool, error) {
+	return d.BaseDao.Duplicate(ctx, d, id, createdBy)
+}
+
 func (d *ColorDao) Update(ctx context.Context, id uint64, color baseEntity.BaseEntityI, fieldsToUpdate []string, updatedBy uint64) error {
 	return d.BaseDao.Update(ctx, d.TableName(), id, color, fieldsToUpdate, updatedBy)
 }

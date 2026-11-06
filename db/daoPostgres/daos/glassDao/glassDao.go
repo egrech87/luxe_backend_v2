@@ -65,6 +65,10 @@ func (d *GlassDao) Create(ctx context.Context, glass baseEntity.BaseEntityI, cre
 	return d.BaseDao.Create(ctx, glass, createdBy)
 }
 
+func (d *GlassDao) Duplicate(ctx context.Context, id uint64, createdBy uint64) (uint64, bool, error) {
+	return d.BaseDao.Duplicate(ctx, d, id, createdBy)
+}
+
 func (d *GlassDao) Update(ctx context.Context, id uint64, glass baseEntity.BaseEntityI, fieldsToUpdate []string, updatedBy uint64) error {
 	return d.BaseDao.Update(ctx, d.TableName(), id, glass, fieldsToUpdate, updatedBy)
 }
