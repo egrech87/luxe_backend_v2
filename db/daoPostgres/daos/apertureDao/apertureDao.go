@@ -268,6 +268,58 @@ func (d *ApertureDao) Read(ctx context.Context, pagination *daoQuery.Pagination,
 
 // #endregion
 
+// Duplicate creates a copy of the aperture with the given id, along with copies of all its non-deleted child apertures.
+// The whole operation runs in a single transaction. It returns the id of the new aperture and found=false if the source does not exist.
+func (d *ApertureDao) Duplicate(ctx context.Context, id uint64, createdBy uint64) (newId uint64, found bool, err error) {
+	tableName := d.TableName()
+	found = true
+
+	err = db.GetDB().WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		source := apertureEntity.New()
+		result := tx.Table(tableName).Scopes(d.ById(tableName, id), d.NonDeleted(tableName)).Limit(1).Find(source)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			found = false
+			return nil
+		}
+
+		children := []*apertureEntity.ApertureEntity{}
+		if err := tx.Table(tableName).Scopes(d.ByParentApertureId(daoOperator.Equals, &id), d.NonDeleted(tableName)).Order(tableName + ".id Asc").Find(&children).Error; err != nil {
+			return err
+		}
+
+		prepare := func(item *apertureEntity.ApertureEntity) {
+			item.SetID(0)
+			item.SetCreatedAt(time.Time{})
+			item.SetUpdatedAt(time.Time{})
+			item.SetDeletedAt(nil)
+			item.SetDeletedBy(0)
+			item.SetCreatedBy(createdBy)
+			item.SetUpdatedBy(createdBy)
+		}
+
+		prepare(source)
+		if err := tx.Create(source).Error; err != nil {
+			return err
+		}
+		newId = source.GetID()
+
+		for _, child := range children {
+			prepare(child)
+			child.SetParentApertureID(&newId)
+			if err := tx.Create(child).Error; err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	return newId, found, err
+}
+
 func (d *ApertureDao) SoftDeleteByQuoteId(ctx context.Context, quoteId uint64, deletedAt time.Time, deletedBy uint64) error {
 	softDeletion := map[string]any{}
 	softDeletion["updated_by"] = deletedBy
