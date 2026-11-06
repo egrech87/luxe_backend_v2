@@ -1,0 +1,292 @@
+{"level":"INFO","time":"2025-08-07T13:59:41.242+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-07T13:59:43.758+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-07T13:59:43.766+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-07T14:00:24.578+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-07T14:00:28.860+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-07T14:00:28.861+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-07T14:01:15.727+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-07T14:01:18.101+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-07T14:01:18.101+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-07T14:14:58.999+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-07T14:15:01.390+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-07T14:15:01.390+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-11T08:35:31.452+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T08:35:34.209+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T08:35:34.209+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-11T08:42:45.743+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T08:42:48.408+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T08:42:48.408+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-11T08:48:42.378+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T08:48:45.020+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T08:48:45.020+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T08:50:02.892+0200","caller":"apiUtils/httpError.go:11","message":"item not available"}
+{"level":"ERROR","time":"2025-08-11T08:50:17.661+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:50:22.687+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:51:33.602+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:51:35.612+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function aperture_profile_id(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:51:50.118+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:52:08.913+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"INFO","time":"2025-08-11T08:54:01.389+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T08:54:04.022+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T08:54:04.022+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T08:54:36.557+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function public.quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T08:54:44.792+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function public.quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"INFO","time":"2025-08-11T08:55:59.448+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T08:56:02.237+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T08:56:02.237+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-11T09:47:49.741+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T09:47:52.395+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T09:47:52.396+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T09:48:11.627+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"ERROR","time":"2025-08-11T09:48:17.356+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: function quote_updated_by(bigint) does not exist (SQLSTATE 42883)"}
+{"level":"INFO","time":"2025-08-11T09:49:35.137+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T09:49:41.213+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T09:49:41.213+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T09:49:54.490+0200","caller":"apiUtils/httpError.go:11","message":"item not available"}
+{"level":"ERROR","time":"2025-08-11T09:50:52.670+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: timeout: context deadline exceeded"}
+{"level":"ERROR","time":"2025-08-11T09:50:52.670+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch clients"}
+{"level":"ERROR","time":"2025-08-11T10:13:51.477+0200","caller":"apiUtils/httpError.go:11","message":"write tcp 10.176.165.163:55825->52.59.152.35:6543: wsasend: An existing connection was forcibly closed by the remote host.; conn closed"}
+{"level":"ERROR","time":"2025-08-11T10:14:53.785+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"ERROR","time":"2025-08-11T10:15:28.728+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"ERROR","time":"2025-08-11T10:15:53.198+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"ERROR","time":"2025-08-11T10:17:39.137+0200","caller":"apiUtils/httpError.go:11","message":"context deadline exceeded"}
+{"level":"ERROR","time":"2025-08-11T10:18:33.849+0200","caller":"apiUtils/httpError.go:11","message":"timeout: context deadline exceeded; sql: transaction has already been committed or rolled back"}
+{"level":"ERROR","time":"2025-08-11T10:20:09.577+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"ERROR","time":"2025-08-11T10:29:45.321+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"INFO","time":"2025-08-11T11:46:45.865+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T11:46:49.882+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T11:46:49.882+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-11T11:47:22.280+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T11:47:26.149+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T11:47:26.149+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T11:47:26.893+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-11T11:48:33.757+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T11:48:37.690+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T11:48:37.690+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T11:48:38.280+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"ERROR","time":"2025-08-11T11:48:47.345+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_2\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-11T11:48:47.345+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch colors"}
+{"level":"ERROR","time":"2025-08-11T11:48:59.245+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_3\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-11T11:48:59.246+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch colors"}
+{"level":"INFO","time":"2025-08-11T12:10:37.125+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-11T12:10:42.848+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-11T12:10:42.848+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-11T12:10:45.473+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: prepared statement \"stmtcache_4\" already exists (SQLSTATE 42P05)"}
+{"level":"INFO","time":"2025-08-12T10:15:01.475+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:15:06.680+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:15:06.680+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:15:07.906+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"ERROR","time":"2025-08-12T10:15:49.585+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_2\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:15:49.586+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"ERROR","time":"2025-08-12T10:15:56.446+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_3\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:15:56.446+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"ERROR","time":"2025-08-12T10:16:00.443+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_4\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:16:00.443+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"ERROR","time":"2025-08-12T10:16:01.976+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_5\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:16:01.976+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"ERROR","time":"2025-08-12T10:16:03.159+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_6\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:16:03.159+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"ERROR","time":"2025-08-12T10:16:04.535+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch items: ERROR: prepared statement \"stmtcache_7\" already exists (SQLSTATE 42P05)"}
+{"level":"ERROR","time":"2025-08-12T10:16:04.535+0200","caller":"apiUtils/httpError.go:11","message":"Failed to fetch users"}
+{"level":"INFO","time":"2025-08-12T10:16:43.281+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:16:48.863+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:16:48.863+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:16:50.615+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+2025/08/12 10:16:50 Error running service in Service Control mode.
+{"level":"INFO","time":"2025-08-12T10:18:58.569+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:19:03.589+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:19:03.589+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:19:04.962+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+2025/08/12 10:19:04 Error running service in Service Control mode.
+{"level":"INFO","time":"2025-08-12T10:20:03.694+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:20:08.333+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+2025/08/12 10:20:08 Error running service in Service Control mode.
+{"level":"INFO","time":"2025-08-12T10:25:22.384+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:25:28.035+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:25:28.035+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:25:29.264+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T10:45:06.965+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:45:12.276+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:45:12.276+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T10:47:01.387+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:47:11.673+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:47:11.673+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:47:12.390+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T10:54:46.408+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:54:51.238+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:54:51.238+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T10:57:01.239+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T10:57:06.814+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T10:57:06.815+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T10:57:07.792+0200","caller":"db/repository.go:80","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T11:07:37.242+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:07:43.018+0200","caller":"db/repository.go:74","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:07:43.018+0200","caller":"db/repository.go:77","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T11:08:22.184+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:08:28.175+0200","caller":"db/repository.go:74","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:08:28.175+0200","caller":"db/repository.go:77","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T11:16:15.292+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:16:21.258+0200","caller":"db/repository.go:74","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:16:21.258+0200","caller":"db/repository.go:77","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T11:16:22.684+0200","caller":"db/repository.go:81","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T11:17:50.535+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:18:52.628+0200","caller":"db/repository.go:74","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:18:52.628+0200","caller":"db/repository.go:77","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T11:18:53.730+0200","caller":"db/repository.go:81","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T11:21:08.093+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:21:13.300+0200","caller":"db/repository.go:74","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:21:13.300+0200","caller":"db/repository.go:77","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T11:21:14.527+0200","caller":"db/repository.go:81","message":"failed to auto migrate db: ERROR: relation \"clients\" already exists (SQLSTATE 42P07)"}
+{"level":"INFO","time":"2025-08-12T11:30:06.172+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:30:11.814+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:30:11.814+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T11:31:19.760+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:31:25.029+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:31:25.029+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-08-12T11:31:46.542+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-08-12T11:31:51.245+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-08-12T11:31:51.245+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-08-12T11:36:29.049+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"ERROR","time":"2025-08-12T11:36:43.801+0200","caller":"apiUtils/httpError.go:11","message":"unexpected EOF; conn closed"}
+{"level":"INFO","time":"2025-09-16T08:35:33.167+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T08:35:37.677+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-09-16T08:35:37.677+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T08:37:01.391+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T08:37:16.693+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-09-16T08:37:16.693+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T08:41:11.834+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T08:41:39.369+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-09-16T08:41:47.121+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T08:43:22.737+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T08:43:27.147+0200","caller":"db/repository.go:73","message":"connected to database : postgres"}
+{"level":"INFO","time":"2025-09-16T08:43:27.147+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T09:16:05.705+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:16:59.594+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:18:28.249+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:19:37.479+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:19:50.765+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T09:19:50.765+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T09:23:00.821+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:23:03.490+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T09:23:03.490+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T09:24:41.786+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T09:24:44.348+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T09:24:44.348+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:04:46.807+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:04:47.180+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:04:47.180+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:13:35.156+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:13:35.422+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:13:35.422+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:15:10.687+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:15:10.946+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:15:10.946+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:17:06.028+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:17:06.402+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:17:06.402+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:20:23.857+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:20:24.127+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:20:24.127+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:22:23.142+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:22:23.407+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:22:23.407+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:24:20.486+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:24:20.743+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:24:20.743+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:26:14.087+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:26:16.774+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:26:16.775+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:34:44.295+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:34:46.959+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:34:46.959+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:44:36.162+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:44:38.818+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:44:38.818+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:46:26.497+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:46:29.107+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:46:29.107+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:49:26.072+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:49:28.723+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:49:28.723+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:51:08.740+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:51:11.609+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:51:11.609+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:52:15.018+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:52:17.636+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:52:17.636+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:54:01.917+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:54:04.531+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:54:04.531+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:54:45.742+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:54:48.369+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:54:48.370+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:56:50.620+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:56:53.375+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:56:53.375+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:57:48.419+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:57:51.044+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:57:51.044+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T10:59:50.426+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T10:59:53.272+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T10:59:53.272+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:01:33.727+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:01:36.356+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:01:36.357+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:02:02.055+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:02:02.428+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:02:02.428+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:05:16.617+0200","caller":"cmd/main.go:105","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:05:19.270+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:05:19.270+0200","caller":"db/repository.go:76","message":"migration starts..."}
+2025/09/16 11:05:19 Error running service in Service Control mode.
+{"level":"INFO","time":"2025-09-16T11:09:09.204+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:09:11.961+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:09:11.961+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:16:35.042+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:16:37.809+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:16:37.809+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:17:05.950+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:17:06.429+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:17:06.429+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:17:32.293+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:17:35.033+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:17:35.033+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:18:04.497+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:18:04.979+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:18:04.979+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:20:24.806+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:20:27.495+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:20:27.495+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:21:18.875+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:21:21.497+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:21:21.497+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:21:51.540+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:21:54.372+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:21:54.372+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:22:32.331+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:22:34.989+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:22:34.989+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:23:06.245+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:23:08.866+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:23:08.866+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-16T11:23:37.274+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-16T11:23:37.634+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-16T11:23:37.634+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-21T15:36:37.903+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-21T15:36:40.307+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-21T15:36:40.307+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2025-09-21T16:05:03.799+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-21T16:05:06.164+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-21T16:05:06.164+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"ERROR","time":"2025-09-21T16:05:40.119+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch item by id: ERROR: invalid reference to FROM-clause entry for table \"apertures\" (SQLSTATE 42P01)"}
+{"level":"ERROR","time":"2025-09-21T16:07:27.944+0200","caller":"apiUtils/httpError.go:11","message":"failed to fetch item by id: ERROR: invalid reference to FROM-clause entry for table \"apertures\" (SQLSTATE 42P01)"}
+{"level":"INFO","time":"2025-09-22T07:38:07.709+0200","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2025-09-22T07:38:10.301+0200","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2025-09-22T07:38:10.301+0200","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2026-11-06T12:10:14.175+0100","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2026-11-06T12:10:14.981+0100","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2026-11-06T12:10:14.981+0100","caller":"db/repository.go:76","message":"migration starts..."}
+{"level":"INFO","time":"2026-11-06T12:15:44.318+0100","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2026-11-06T12:16:57.846+0100","caller":"cmd/main.go:31","message":"service initialising"}
+{"level":"INFO","time":"2026-11-06T12:17:03.974+0100","caller":"db/repository.go:73","message":"connected to database : luxe"}
+{"level":"INFO","time":"2026-11-06T12:17:03.974+0100","caller":"db/repository.go:76","message":"migration starts..."}

@@ -1,0 +1,8 @@
+logLevel: debug
+logStructured: false
+dbSetup: true
+postgresHost: localhost
+postgresPort: 5432
+postgresDb: luxe
+postgresUser: postgres
+postgresPassword: admin
