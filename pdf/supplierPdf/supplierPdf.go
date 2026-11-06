@@ -6,6 +6,7 @@ import (
 	"Quote/db/entity/entities/quoteEntity"
 	"Quote/model/enums/fileTypes"
 	"Quote/utils/formatters"
+	"Quote/utils/int64Array"
 	"Quote/utils/pathUtils"
 	"Quote/utils/pdfUtils"
 	"bytes"
@@ -24,6 +25,9 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
 	}
+
+	// The report lists one item per unit (per actual measurement) rather than grouping units by quantity
+	mainApertureList = splitIntoUnits(mainApertureList)
 
 	// var color *colorEntity.ColorEntity
 	// if len(mainApertureList) > 0 {
@@ -58,6 +62,58 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	}
 
 	return fullPdf, err
+}
+
+// splitIntoUnits expands every aperture into one aperture per unit, each with a quantity of 1 and its own actual width and height.
+//
+// Child apertures are expanded the same way. The n-th unit of a main aperture gets the n-th unit of each of its child apertures;
+// any child units beyond the main aperture's unit count are attached to its last unit.
+// The given apertures are not modified.
+func splitIntoUnits(mainApertureList []*apertureEntity.ApertureEntity) []*apertureEntity.ApertureEntity {
+	result := []*apertureEntity.ApertureEntity{}
+
+	for _, mainAperture := range mainApertureList {
+		mainUnits := apertureUnits(mainAperture)
+
+		childUnits := make([][]*apertureEntity.ApertureEntity, len(mainAperture.ChildApertures))
+		for c, childAperture := range mainAperture.ChildApertures {
+			childUnits[c] = apertureUnits(childAperture)
+		}
+
+		for i, mainUnit := range mainUnits {
+			mainUnit.ChildApertures = nil
+			for c := range childUnits {
+				for j, childUnit := range childUnits[c] {
+					isLastMainUnit := i == len(mainUnits)-1
+					if j == i || (isLastMainUnit && j > i) {
+						mainUnit.ChildApertures = append(mainUnit.ChildApertures, childUnit)
+					}
+				}
+			}
+			result = append(result, mainUnit)
+		}
+	}
+
+	return result
+}
+
+// apertureUnits returns one copy of the aperture per unit. An aperture with no units is returned unchanged as a single item.
+func apertureUnits(aperture *apertureEntity.ApertureEntity) []*apertureEntity.ApertureEntity {
+	count := min(len(aperture.ActualWidth), len(aperture.ActualHeight))
+	if count == 0 {
+		unit := *aperture
+		return []*apertureEntity.ApertureEntity{&unit}
+	}
+
+	units := make([]*apertureEntity.ApertureEntity, 0, count)
+	for i := 0; i < count; i++ {
+		unit := *aperture
+		unit.Quantity = 1
+		unit.ActualWidth = int64Array.Int64Array{aperture.ActualWidth[i]}
+		unit.ActualHeight = int64Array.Int64Array{aperture.ActualHeight[i]}
+		units = append(units, &unit)
+	}
+	return units
 }
 
 func validate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity) error {
