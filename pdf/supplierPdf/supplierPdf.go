@@ -64,10 +64,12 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	return fullPdf, err
 }
 
-// splitIntoUnits expands every aperture into one aperture per unit, each with a quantity of 1 and its own actual width and height.
+// splitIntoUnits breaks every aperture into items so that units with the exact same actual width and height are grouped
+// into one item (quantity = number of identical units) and units with different measurements get their own items.
 //
-// Child apertures are expanded the same way. The n-th unit of a main aperture gets the n-th unit of each of its child apertures;
-// any child units beyond the main aperture's unit count are attached to its last unit.
+// Child apertures follow the same rule. The n-th unit of a main aperture is paired with the n-th unit of each of its child
+// apertures (any child units beyond the main aperture's unit count are attached to its last unit). Main units are only grouped
+// when their own measurements AND their paired child measurements are identical.
 // The given apertures are not modified.
 func splitIntoUnits(mainApertureList []*apertureEntity.ApertureEntity) []*apertureEntity.ApertureEntity {
 	result := []*apertureEntity.ApertureEntity{}
@@ -80,6 +82,10 @@ func splitIntoUnits(mainApertureList []*apertureEntity.ApertureEntity) []*apertu
 			childUnits[c] = apertureUnits(childAperture)
 		}
 
+		groups := []*apertureEntity.ApertureEntity{}
+		groupIndexByKey := map[string]int{}
+		groupSizes := []int{}
+
 		for i, mainUnit := range mainUnits {
 			mainUnit.ChildApertures = nil
 			for c := range childUnits {
@@ -90,11 +96,54 @@ func splitIntoUnits(mainApertureList []*apertureEntity.ApertureEntity) []*apertu
 					}
 				}
 			}
-			result = append(result, mainUnit)
+
+			key := unitKey(mainUnit)
+			for _, child := range mainUnit.ChildApertures {
+				key += "|" + unitKey(child)
+			}
+
+			if index, found := groupIndexByKey[key]; found {
+				groupSizes[index]++
+				continue
+			}
+			groupIndexByKey[key] = len(groups)
+			groups = append(groups, mainUnit)
+			groupSizes = append(groupSizes, 1)
+		}
+
+		for i, group := range groups {
+			setUnitCount(group, groupSizes[i])
+			for _, child := range group.ChildApertures {
+				setUnitCount(child, groupSizes[i])
+			}
+			result = append(result, group)
 		}
 	}
 
 	return result
+}
+
+// unitKey identifies a single unit's measurements. Apertures with no units are keyed by their unit-less state.
+func unitKey(unit *apertureEntity.ApertureEntity) string {
+	if len(unit.ActualWidth) == 0 || len(unit.ActualHeight) == 0 {
+		return "none"
+	}
+	return fmt.Sprintf("%dx%d", unit.ActualWidth[0], unit.ActualHeight[0])
+}
+
+// setUnitCount makes a single-unit aperture represent count identical units.
+func setUnitCount(unit *apertureEntity.ApertureEntity, count int) {
+	if len(unit.ActualWidth) == 0 || len(unit.ActualHeight) == 0 {
+		return
+	}
+	width, height := unit.ActualWidth[0], unit.ActualHeight[0]
+	unit.Quantity = count
+	unit.ActualWidth = make(int64Array.Int64Array, count)
+	unit.ActualHeight = make(int64Array.Int64Array, count)
+	for i := 0; i < count; i++ {
+		unit.ActualWidth[i] = width
+		unit.ActualHeight[i] = height
+	}
 }
 
 // apertureUnits returns one copy of the aperture per unit. An aperture with no units is returned unchanged as a single item.
