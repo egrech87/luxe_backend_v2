@@ -116,6 +116,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			apertureGroup.GET("/", apertureController.Get)
 			apertureGroup.GET("/by/id/:aperture_id", apertureController.GetById)
 			apertureGroup.GET("/copy/:aperture_id", apertureController.Copy)
+			apertureGroup.POST("/duplicate/:aperture_id", apertureController.Duplicate)
 		}
 		fileGroup := basicAuthGroup.Group("/files")
 		{

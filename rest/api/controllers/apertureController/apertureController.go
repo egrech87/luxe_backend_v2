@@ -154,3 +154,34 @@ func Copy(c *gin.Context) {
 
 	c.JSON(http.StatusOK, copiedAperture.ToJson())
 }
+
+// Duplicate creates a persisted copy of an aperture and all of its child apertures.
+// It responds with the id of the new aperture.
+func Duplicate(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	authUserId, err := baseController.GetAuthenticatedId(c)
+	if withAuthorisation && err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	id, err := apiUtils.HttpPathUInt64(c, "aperture_id")
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newId, found, err := apertureDao.GetInstance().Duplicate(ctx, *id, authUserId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to duplicate item: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "item not available", http.StatusNotFound)
+		return
+	}
+
+	c.JSON(http.StatusOK, newId)
+}
