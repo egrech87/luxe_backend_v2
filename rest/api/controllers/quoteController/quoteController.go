@@ -6,6 +6,7 @@ import (
 	"Quote/db/daoPostgres/daoQuery/enums/daoOperator"
 	"Quote/db/daoPostgres/daos/apertureDao"
 	"Quote/db/daoPostgres/daos/fileDao"
+	"Quote/db/daoPostgres/daos/glassDao"
 	"Quote/db/daoPostgres/daos/profileDao"
 	"Quote/db/daoPostgres/daos/quoteDao"
 	"Quote/db/entity/baseEntity"
@@ -202,11 +203,33 @@ func GetDatasheets(c *gin.Context) {
 	)
 	tx.Group("profiles.id, files.type, files.created_at, files.created_by, files.updated_at, files.updated_by, files.deleted_at, files.deleted_by")
 
+	// The datasheets of the aperture types (profiles) go first
 	itemListMap := []map[string]any{}
 	if err := tx.Find(&itemListMap).Error; err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch items: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
+
+	// Followed by the datasheets of the glass types, fetched the same way
+	glassTableName := glassDao.GetInstance().TableName()
+
+	glassTx := apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false)
+	glassTx = glassTx.Select("glasses.id as glass_id", "glasses.friendly_name as glass_friendly_name", "glasses.datasheet_id as id", "files.type", "files.created_at", "files.created_by", "files.updated_at", "files.updated_by", "files.deleted_at", "files.deleted_by")
+
+	glassTx.Joins(fmt.Sprintf("left join %s on %s.glass_id = %s.id", glassTableName, tableName, glassTableName))
+	glassTx.Joins(fmt.Sprintf("left join %s on %s.datasheet_id = %s.id", fileTableName, glassTableName, fileTableName))
+	glassTx.Scopes(apertureDao.ByQuoteId(daoOperator.Equals, *id))
+	glassTx.Where(fmt.Sprintf("%s.glass_id IS NOT NULL", tableName))
+	glassTx.Where(fmt.Sprintf("%s.datasheet_id IS NOT NULL", glassTableName))
+	glassTx.Group("glasses.id, files.type, files.created_at, files.created_by, files.updated_at, files.updated_by, files.deleted_at, files.deleted_by")
+	glassTx.Order("glasses.id")
+
+	glassItemListMap := []map[string]any{}
+	if err := glassTx.Find(&glassItemListMap).Error; err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch items: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	itemListMap = append(itemListMap, glassItemListMap...)
 
 	pagination := daoQuery.NewPagination()
 	pagination.Data = itemListMap
