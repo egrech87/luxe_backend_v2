@@ -20,7 +20,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte) ([]byte, error) {
+// Generate builds the supplier PDF. If termsAndConditions is not empty, that PDF is merged at the very end of the report, after the datasheets.
+func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte) ([]byte, error) {
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
 	}
@@ -51,6 +52,10 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	sections = append(sections, section3)
 
 	sections = append(sections, datasheetList...)
+
+	if len(termsAndConditions) > 0 {
+		sections = append(sections, termsAndConditions)
+	}
 
 	fullPdf, err := pdfUtils.MergePdfBytes(sections...)
 	if err != nil {

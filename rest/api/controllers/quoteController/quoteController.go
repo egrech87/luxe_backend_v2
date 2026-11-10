@@ -20,6 +20,7 @@ import (
 	"Quote/pdf/supplierPdf"
 	"Quote/rest/api/apiUtils"
 	"Quote/rest/api/baseController"
+	"Quote/service/termsAndConditionsService"
 	"Quote/utils/imageUtils"
 	"Quote/utils/pathUtils"
 	"context"
@@ -529,7 +530,14 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		}
 	}
 
-	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList)
+	// The terms and conditions PDF, if there is one, goes at the end of the report
+	termsAndConditions, err := termsAndConditionsService.GetPdf(ctx)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the terms and conditions: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
