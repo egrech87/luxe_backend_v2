@@ -11,6 +11,7 @@ import (
 	"Quote/rest/api/controllers/profileController"
 	"Quote/rest/api/controllers/quoteController"
 	"Quote/rest/api/controllers/supplierController"
+	"Quote/rest/api/controllers/termsAndConditionsController"
 	"Quote/rest/api/controllers/userController"
 	"Quote/rest/middleware"
 
@@ -120,6 +121,12 @@ func NewPublicAPIRouter() *gin.Engine {
 			apertureGroup.GET("/by/id/:aperture_id", apertureController.GetById)
 			apertureGroup.GET("/copy/:aperture_id", apertureController.Copy)
 			apertureGroup.POST("/duplicate/:aperture_id", apertureController.Duplicate)
+		}
+		termsAndConditionsGroup := basicAuthGroup.Group("/terms-and-conditions")
+		{
+			termsAndConditionsGroup.GET("", termsAndConditionsController.Exists)
+			termsAndConditionsGroup.GET("/download", termsAndConditionsController.Download)
+			termsAndConditionsGroup.POST("/upload", termsAndConditionsController.Upload)
 		}
 		fileGroup := basicAuthGroup.Group("/files")
 		{

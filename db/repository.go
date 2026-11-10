@@ -10,6 +10,7 @@ import (
 	"Quote/db/entity/entities/profileEntity"
 	"Quote/db/entity/entities/quoteEntity"
 	"Quote/db/entity/entities/supplierEntity"
+	"Quote/db/entity/entities/termsAndConditionsEntity"
 	"Quote/db/entity/entities/userEntity"
 	quoteLogger "Quote/logger"
 	"fmt"
@@ -39,6 +40,7 @@ func (c *Repo) dbSetup() error {
 		quoteEntity.New(),
 		userEntity.New(),
 		fileEntity.New(),
+		termsAndConditionsEntity.New(),
 	)
 	if err != nil {
 		return err
