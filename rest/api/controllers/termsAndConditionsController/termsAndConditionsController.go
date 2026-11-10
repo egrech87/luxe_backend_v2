@@ -7,6 +7,7 @@ import (
 	"Quote/rest/api/apiUtils"
 	"Quote/rest/api/baseController"
 	"Quote/service/fileService"
+	"Quote/service/termsAndConditionsService"
 	"context"
 	"fmt"
 	"io"
@@ -38,22 +39,12 @@ func Download(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
 	defer cancel()
 
-	terms, found, err := termsAndConditionsDao.GetInstance().Get(ctx)
+	data, err := termsAndConditionsService.GetPdf(ctx)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the terms and conditions: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
-	if !found {
-		apiUtils.HttpError(c.Writer, logger.GetInstance(), "terms and conditions not available", http.StatusNotFound)
-		return
-	}
-
-	data, found, err := fileService.GetSingleFile(ctx, terms.FileID)
-	if err != nil {
-		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the terms and conditions file: %s", err.Error()), http.StatusInternalServerError)
-		return
-	}
-	if !found {
+	if data == nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), "terms and conditions not available", http.StatusNotFound)
 		return
 	}
