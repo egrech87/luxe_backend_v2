@@ -62,6 +62,12 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 		return []byte{}, err
 	}
 
+	// Number every page of the final document
+	fullPdf, err = pdfUtils.AddPageNumbers(fullPdf)
+	if err != nil {
+		return []byte{}, err
+	}
+
 	return fullPdf, err
 }
 
