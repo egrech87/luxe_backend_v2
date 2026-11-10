@@ -57,3 +57,14 @@ func TestUploadRejectsInvalidFiles(t *testing.T) {
 		t.Fatalf("expected 415 for wrong signature, got %d", code)
 	}
 }
+
+func TestDeleteRequiresAuth(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	r := gin.New()
+	r.DELETE("/", Delete)
+	rec := httptest.NewRecorder()
+	r.ServeHTTP(rec, httptest.NewRequest(http.MethodDelete, "/", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("expected 401 without auth, got %d", rec.Code)
+	}
+}

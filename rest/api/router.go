@@ -127,6 +127,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			termsAndConditionsGroup.GET("", termsAndConditionsController.Exists)
 			termsAndConditionsGroup.GET("/download", termsAndConditionsController.Download)
 			termsAndConditionsGroup.POST("/upload", termsAndConditionsController.Upload)
+			termsAndConditionsGroup.DELETE("", termsAndConditionsController.Delete)
 		}
 		fileGroup := basicAuthGroup.Group("/files")
 		{

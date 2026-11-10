@@ -126,3 +126,32 @@ func Upload(c *gin.Context) {
 
 	c.JSON(http.StatusOK, fileId)
 }
+
+// Delete removes the terms and conditions PDF. It responds with 404 if there is none.
+func Delete(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	authUserId, err := baseController.GetAuthenticatedId(c)
+	if withAuthorisation && err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	fileId, found, err := termsAndConditionsDao.GetInstance().SoftDelete(ctx, authUserId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to delete the terms and conditions: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "terms and conditions not available", http.StatusNotFound)
+		return
+	}
+
+	if _, err := fileDao.GetInstance().SoftDelete(ctx, fileId, authUserId); err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to delete the terms and conditions file: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"exists": false})
+}
