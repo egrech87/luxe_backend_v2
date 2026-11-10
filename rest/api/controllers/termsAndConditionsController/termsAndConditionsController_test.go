@@ -1,15 +1,25 @@
 package termsAndConditionsController
 
 import (
+	"Quote/config"
+	"Quote/logger"
 	"bytes"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
 	"net/textproto"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
 )
+
+func TestMain(m *testing.M) {
+	if _, err := logger.Init(&config.RentalConfig{LogLevel: "error", LogOutput: "stderr"}); err != nil {
+		panic(err)
+	}
+	os.Exit(m.Run())
+}
 
 func upload(t *testing.T, contentType string, content string, withAuth bool) int {
 	t.Helper()
