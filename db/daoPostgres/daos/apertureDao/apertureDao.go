@@ -268,9 +268,10 @@ func (d *ApertureDao) Read(ctx context.Context, pagination *daoQuery.Pagination,
 
 // #endregion
 
-// Duplicate creates a copy of the aperture with the given id, along with copies of all its non-deleted child apertures.
-// The whole operation runs in a single transaction. It returns the id of the new aperture and found=false if the source does not exist.
-func (d *ApertureDao) Duplicate(ctx context.Context, id uint64, createdBy uint64) (newId uint64, found bool, err error) {
+// Duplicate creates `amount` copies of the aperture with the given id, each along with copies of all its non-deleted child apertures.
+// The whole operation runs in a single transaction, so either every copy is created or none is.
+// It returns the id of the first copy created, and found=false if the source does not exist.
+func (d *ApertureDao) Duplicate(ctx context.Context, id uint64, amount int, createdBy uint64) (firstNewId uint64, found bool, err error) {
 	tableName := d.TableName()
 	found = true
 
@@ -300,24 +301,32 @@ func (d *ApertureDao) Duplicate(ctx context.Context, id uint64, createdBy uint64
 			item.SetUpdatedBy(createdBy)
 		}
 
-		prepare(source)
-		if err := tx.Create(source).Error; err != nil {
-			return err
-		}
-		newId = source.GetID()
-
-		for _, child := range children {
-			prepare(child)
-			child.SetParentApertureID(&newId)
-			if err := tx.Create(child).Error; err != nil {
+		for i := 0; i < amount; i++ {
+			// Work on copies so that the source stays untouched between iterations
+			newAperture := *source
+			prepare(&newAperture)
+			if err := tx.Create(&newAperture).Error; err != nil {
 				return err
+			}
+			newId := newAperture.GetID()
+			if i == 0 {
+				firstNewId = newId
+			}
+
+			for _, child := range children {
+				newChild := *child
+				prepare(&newChild)
+				newChild.SetParentApertureID(&newId)
+				if err := tx.Create(&newChild).Error; err != nil {
+					return err
+				}
 			}
 		}
 
 		return nil
 	})
 
-	return newId, found, err
+	return firstNewId, found, err
 }
 
 func (d *ApertureDao) SoftDeleteByQuoteId(ctx context.Context, quoteId uint64, deletedAt time.Time, deletedBy uint64) error {

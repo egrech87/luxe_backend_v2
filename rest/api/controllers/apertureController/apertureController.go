@@ -155,8 +155,11 @@ func Copy(c *gin.Context) {
 	c.JSON(http.StatusOK, copiedAperture.ToJson())
 }
 
-// Duplicate creates a persisted copy of an aperture and all of its child apertures.
-// It responds with the id of the new aperture.
+// maxDuplicateAmount is the largest number of copies a single Duplicate request may create.
+const maxDuplicateAmount = 100
+
+// Duplicate creates `amount` persisted copies (default 1, from the "amount" query parameter) of an aperture and of all its child apertures.
+// It responds with only the first copy that was created.
 func Duplicate(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
 	defer cancel()
@@ -173,7 +176,25 @@ func Duplicate(c *gin.Context) {
 		return
 	}
 
-	newId, found, err := apertureDao.GetInstance().Duplicate(ctx, *id, authUserId)
+	amount := uint64(1)
+	{
+		amountParam, err := apiUtils.HttpQueryUInt64(c, "amount", false)
+		if err != nil {
+			apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+			return
+		}
+		if amountParam != nil {
+			amount = *amountParam
+		}
+		if amount < 1 || amount > maxDuplicateAmount {
+			apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("'amount' query parameter must be between 1 and %d", maxDuplicateAmount), http.StatusBadRequest)
+			return
+		}
+	}
+
+	dao := apertureDao.GetInstance()
+
+	newId, found, err := dao.Duplicate(ctx, *id, int(amount), authUserId)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to duplicate item: %s", err.Error()), http.StatusInternalServerError)
 		return
@@ -183,5 +204,21 @@ func Duplicate(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, newId)
+	// Return the first copy, with its calculated fields, in the same shape as GET /apertures/by/id/:aperture_id
+	selector, err := apiUtils.HttpHeaderSelector(c)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+	copiedAperture, found, err := dao.ReadByID(ctx, newId, selector)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch duplicated item: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "duplicated item not available", http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, copiedAperture.ToJson())
 }
