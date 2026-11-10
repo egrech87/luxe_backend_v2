@@ -22,7 +22,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, includeBom bool) ([]byte, error) {
+// Generate builds the client PDF. The datasheets (aperture types first, then glass types) follow the report,
+// and the terms and conditions PDF, if not empty, goes at the very end.
+func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool) ([]byte, error) {
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
 	}
@@ -61,6 +63,10 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	sections = append(sections, section4)
 
 	sections = append(sections, datasheetList...)
+
+	if len(termsAndConditions) > 0 {
+		sections = append(sections, termsAndConditions)
+	}
 
 	fullPdf, err := pdfUtils.MergePdfBytes(sections...)
 	if err != nil {
