@@ -19,6 +19,7 @@ type GlassEntity struct {
 	PriceFactor           float64 `json:"price_factor" structs:"price_factor"`
 	GlazingStructure      string  `json:"glazing_structure" structs:"glazing_structure"`
 	Thickness             float64 `json:"thickness" structs:"thickness" gorm:"default:0"`
+	DatasheetId           *uint64 `json:"datasheet_id" structs:"datasheet_id"` // The id of the datasheet file; null when there is none
 }
 
 func New() *GlassEntity {
@@ -50,6 +51,9 @@ func (e *GlassEntity) GetGlazingStructure() string {
 func (e *GlassEntity) GetThickness() float64 {
 	return e.Thickness
 }
+func (e *GlassEntity) GetDatasheetId() *uint64 {
+	return e.DatasheetId
+}
 
 func (e *GlassEntity) SetFriendlyName(value string) {
 	e.FriendlyName = value
@@ -77,6 +81,9 @@ func (e *GlassEntity) SetGlazingStructure(value string) {
 func (e *GlassEntity) SetThickness(value float64) {
 	e.Thickness = value
 }
+func (e *GlassEntity) SetDatasheetId(value *uint64) {
+	e.DatasheetId = value
+}
 
 func (*GlassEntity) TableName() string {
 	return TableName()
@@ -86,7 +93,7 @@ func TableName() string {
 }
 func (e *GlassEntity) FieldNames() []string {
 	result := e.BaseEntity.FieldNames()
-	return append(result, []string{"friendly_name", "type", "u_value", "price_factor", "glazing_structure", "thickness"}...)
+	return append(result, []string{"friendly_name", "type", "u_value", "price_factor", "glazing_structure", "thickness", "datasheet_id"}...)
 }
 
 func (e *GlassEntity) ToJson() map[string]any {
@@ -117,6 +124,10 @@ func (e *GlassEntity) FillFromJson(json map[string]any) error {
 		return err
 	}
 	_, err = mapUtils.FieldAnyToType(json, "thickness", fmt.Sprintf("%T", e.Thickness))
+	if err != nil {
+		return err
+	}
+	_, err = mapUtils.FieldAnyToType(json, "datasheet_id", fmt.Sprintf("%T", e.DatasheetId))
 	if err != nil {
 		return err
 	}
@@ -181,6 +192,17 @@ func (e *GlassEntity) GetUpdates(oldItem baseEntity.BaseEntityI) map[string]any 
 	if e.Thickness != oldGlass.Thickness {
 		updates["thickness"] = e.Thickness
 	}
+	if !equalIds(e.DatasheetId, oldGlass.DatasheetId) {
+		updates["datasheet_id"] = e.DatasheetId
+	}
 
 	return updates
+}
+
+// equalIds compares two optional ids by value (nil only equals nil).
+func equalIds(a, b *uint64) bool {
+	if a == nil || b == nil {
+		return a == b
+	}
+	return *a == *b
 }

@@ -6,6 +6,7 @@ import (
 	"Quote/db/daoPostgres/daoQuery/enums/daoOperator"
 	"Quote/db/daoPostgres/daos/apertureDao"
 	"Quote/db/daoPostgres/daos/fileDao"
+	"Quote/db/daoPostgres/daos/glassDao"
 	"Quote/db/daoPostgres/daos/profileDao"
 	"Quote/db/daoPostgres/daos/quoteDao"
 	"Quote/db/entity/baseEntity"
@@ -202,11 +203,33 @@ func GetDatasheets(c *gin.Context) {
 	)
 	tx.Group("profiles.id, files.type, files.created_at, files.created_by, files.updated_at, files.updated_by, files.deleted_at, files.deleted_by")
 
+	// The datasheets of the aperture types (profiles) go first
 	itemListMap := []map[string]any{}
 	if err := tx.Find(&itemListMap).Error; err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch items: %s", err.Error()), http.StatusInternalServerError)
 		return
 	}
+
+	// Followed by the datasheets of the glass types, fetched the same way
+	glassTableName := glassDao.GetInstance().TableName()
+
+	glassTx := apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false)
+	glassTx = glassTx.Select("glasses.id as glass_id", "glasses.friendly_name as glass_friendly_name", "glasses.datasheet_id as id", "files.type", "files.created_at", "files.created_by", "files.updated_at", "files.updated_by", "files.deleted_at", "files.deleted_by")
+
+	glassTx.Joins(fmt.Sprintf("left join %s on %s.glass_id = %s.id", glassTableName, tableName, glassTableName))
+	glassTx.Joins(fmt.Sprintf("left join %s on %s.datasheet_id = %s.id", fileTableName, glassTableName, fileTableName))
+	glassTx.Scopes(apertureDao.ByQuoteId(daoOperator.Equals, *id))
+	glassTx.Where(fmt.Sprintf("%s.glass_id IS NOT NULL", tableName))
+	glassTx.Where(fmt.Sprintf("%s.datasheet_id IS NOT NULL", glassTableName))
+	glassTx.Group("glasses.id, files.type, files.created_at, files.created_by, files.updated_at, files.updated_by, files.deleted_at, files.deleted_by")
+	glassTx.Order("glasses.id")
+
+	glassItemListMap := []map[string]any{}
+	if err := glassTx.Find(&glassItemListMap).Error; err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch items: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	itemListMap = append(itemListMap, glassItemListMap...)
 
 	pagination := daoQuery.NewPagination()
 	pagination.Data = itemListMap
@@ -327,51 +350,21 @@ func GenerateClientInvoice(c *gin.Context) {
 		}
 	}
 
-	var datasheetList [][]byte
-	// Get the list of datasheets
-	{
-		apertureDao := apertureDao.GetInstance()
-		profileDao := profileDao.GetInstance()
-		fileDao := fileDao.GetInstance()
-		tableName := apertureDao.TableName()
-		profileTableName := profileDao.TableName()
-		fileTableName := fileDao.TableName()
-
-		tx := apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false)
-		tx = tx.Select("profiles.datasheet_id as id")
-
-		tx.Joins(fmt.Sprintf("left join %s on %s.profile_id = %s.id", profileTableName, tableName, profileTableName))
-		tx.Joins(fmt.Sprintf("left join %s on %s.datasheet_id = %s.id", fileTableName, profileTableName, fileTableName))
-		tx.Where("files.type = ?", fileTypes.Pdf)
-		tx.Scopes(
-			apertureDao.ByQuoteId(daoOperator.Equals, *quoteId),
-			apertureDao.ByProfileId(daoOperator.IsNot, nil),
-			apertureDao.ByDatasheetId(daoOperator.IsNot, nil),
-		)
-		tx.Group("profiles.id, files.type")
-
-		itemListMap := []map[string]any{}
-		if err := tx.Find(&itemListMap).Error; err != nil {
-			apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		for _, item := range itemListMap {
-			id := item["id"].(uint64)
-			fileI, found, err := fileDao.ReadByID(ctx, id, nil)
-			if err != nil {
-				apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			if found {
-				file := fileI.(*fileEntity.FileEntity)
-				datasheetList = append(datasheetList, file.Data)
-			}
-		}
+	// The datasheets of the aperture types (profiles), followed by those of the glass types
+	datasheetList, err := getDatasheetPdfs(ctx, *quoteId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	pdfBytes, err := clientPdf.Generate(quote, mainApertureList, datasheetList, *includeBom)
+	// The terms and conditions PDF, if there is one, goes at the very end of the report
+	termsAndConditions, err := termsAndConditionsService.GetPdf(ctx)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the terms and conditions: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	pdfBytes, err := clientPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions, *includeBom)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
@@ -486,48 +479,11 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		}
 	}
 
-	var datasheetList [][]byte
-	// Get the list of datasheets
-	{
-		apertureDao := apertureDao.GetInstance()
-		profileDao := profileDao.GetInstance()
-		fileDao := fileDao.GetInstance()
-		tableName := apertureDao.TableName()
-		profileTableName := profileDao.TableName()
-		fileTableName := fileDao.TableName()
-
-		tx := apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false)
-		tx = tx.Select("profiles.datasheet_id as id")
-
-		tx.Joins(fmt.Sprintf("left join %s on %s.profile_id = %s.id", profileTableName, tableName, profileTableName))
-		tx.Joins(fmt.Sprintf("left join %s on %s.datasheet_id = %s.id", fileTableName, profileTableName, fileTableName))
-		tx.Where("files.type = ?", fileTypes.Pdf)
-		tx.Scopes(
-			apertureDao.ByQuoteId(daoOperator.Equals, *quoteId),
-			apertureDao.ByProfileId(daoOperator.IsNot, nil),
-			apertureDao.ByDatasheetId(daoOperator.IsNot, nil),
-		)
-		tx.Group("profiles.id, files.type")
-
-		itemListMap := []map[string]any{}
-		if err := tx.Find(&itemListMap).Error; err != nil {
-			apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		for _, item := range itemListMap {
-			id := item["id"].(uint64)
-			fileI, found, err := fileDao.ReadByID(ctx, id, nil)
-			if err != nil {
-				apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			if found {
-				file := fileI.(*fileEntity.FileEntity)
-				datasheetList = append(datasheetList, file.Data)
-			}
-		}
+	// The datasheets of the aperture types (profiles), followed by those of the glass types
+	datasheetList, err := getDatasheetPdfs(ctx, *quoteId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// The terms and conditions PDF, if there is one, goes at the end of the report
@@ -547,4 +503,55 @@ func GenerateSupplierInvoice(c *gin.Context) {
 	c.Header("Content-Type", "application/pdf")
 	c.Header("Accept-Length", fmt.Sprintf("%d", len(pdfBytes)))
 	c.Writer.Write(pdfBytes)
+}
+
+// getDatasheetPdfs returns the datasheet PDFs for a quote: first those of the aperture types (profiles) used by its apertures,
+// then those of the glass types, each fetched the same way and ordered by type id.
+func getDatasheetPdfs(ctx context.Context, quoteId uint64) ([][]byte, error) {
+	apertureDao := apertureDao.GetInstance()
+	fileDao := fileDao.GetInstance()
+	tableName := apertureDao.TableName()
+	fileTableName := fileDao.TableName()
+
+	sources := []struct {
+		typeTableName string
+		typeIdColumn  string
+	}{
+		{profileDao.GetInstance().TableName(), "profile_id"},
+		{glassDao.GetInstance().TableName(), "glass_id"},
+	}
+
+	datasheetList := [][]byte{}
+	for _, source := range sources {
+		tx := apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false)
+		tx = tx.Select(fmt.Sprintf("%s.datasheet_id as id", source.typeTableName))
+
+		tx.Joins(fmt.Sprintf("left join %s on %s.%s = %s.id", source.typeTableName, tableName, source.typeIdColumn, source.typeTableName))
+		tx.Joins(fmt.Sprintf("left join %s on %s.datasheet_id = %s.id", fileTableName, source.typeTableName, fileTableName))
+		tx.Where(fmt.Sprintf("%s.type = ?", fileTableName), fileTypes.Pdf)
+		tx.Where(fmt.Sprintf("%s.%s IS NOT NULL", tableName, source.typeIdColumn))
+		tx.Where(fmt.Sprintf("%s.datasheet_id IS NOT NULL", source.typeTableName))
+		tx.Scopes(apertureDao.ByQuoteId(daoOperator.Equals, quoteId))
+		tx.Group(fmt.Sprintf("%s.id, %s.type", source.typeTableName, fileTableName))
+		tx.Order(fmt.Sprintf("%s.id", source.typeTableName))
+
+		itemListMap := []map[string]any{}
+		if err := tx.Find(&itemListMap).Error; err != nil {
+			return nil, err
+		}
+
+		for _, item := range itemListMap {
+			id := item["id"].(uint64)
+			fileI, found, err := fileDao.ReadByID(ctx, id, nil)
+			if err != nil {
+				return nil, err
+			}
+
+			if found {
+				datasheetList = append(datasheetList, fileI.(*fileEntity.FileEntity).Data)
+			}
+		}
+	}
+
+	return datasheetList, nil
 }
