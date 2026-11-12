@@ -1127,6 +1127,29 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 				}
 			}
 
+			// Insect screen
+			{
+				value := "Not included"
+				if aperture.NetsQuantity >= 1 {
+					value = "Included"
+					if description := strings.TrimSpace(aperture.NetDescription); description != "" {
+						value = description
+					}
+				}
+
+				pdf.SetXY(col1X, y+lineHt)
+				pdf.CellFormat(col1Width, 2, "Insect screen :", "", 0, "TR", false, 0, "")
+
+				// The value may take more than one line
+				for _, piece := range strings.Split(value, "\n") {
+					for _, valueLine := range pdf.SplitLines([]byte(piece), col2Width) {
+						y += lineHt
+						pdf.SetXY(col2X, y)
+						pdf.CellFormat(col2Width, 2, string(valueLine), "", 0, "TL", false, 0, "")
+					}
+				}
+			}
+
 			// Area
 			y += lineHt
 			area := float64(aperture.ActualWidth) * float64(aperture.ActualHeight) / 1000000.0
