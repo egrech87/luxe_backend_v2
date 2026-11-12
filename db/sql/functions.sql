@@ -1411,7 +1411,7 @@ RETURNS numeric AS $shippingCost$
 declare
 	sumShippingCost NUMERIC;
 BEGIN
-	SELECT SUM(aperture_shipping_cost(apertures.id))
+	SELECT SUM(aperture_shipping_cost(apertures.id) * COALESCE(quantity, 0))
 	INTO sumShippingCost
 	FROM apertures
 	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
@@ -1427,7 +1427,7 @@ RETURNS numeric AS $supplierCost$
 declare
 	sumSupplierCost NUMERIC;
 BEGIN
-	SELECT SUM(aperture_supplier_cost(apertures.id))
+	SELECT SUM(aperture_supplier_cost(apertures.id) * COALESCE(quantity, 0))
 	INTO sumSupplierCost
 	FROM apertures
 	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
@@ -1443,7 +1443,7 @@ RETURNS numeric AS $installationCost$
 declare
 	sumInstallationCost NUMERIC;
 BEGIN
-	SELECT SUM(aperture_installation_cost(apertures.id))
+	SELECT SUM(aperture_installation_cost(apertures.id) * COALESCE(quantity, 0))
 	INTO sumInstallationCost
 	FROM apertures
 	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
@@ -1459,7 +1459,7 @@ RETURNS numeric AS $contingencyCost$
 declare
 	sumContingencyCost NUMERIC;
 BEGIN
-	SELECT SUM(aperture_contingency_cost(apertures.id))
+	SELECT SUM(aperture_contingency_cost(apertures.id) * COALESCE(quantity, 0))
 	INTO sumContingencyCost
 	FROM apertures
 	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
