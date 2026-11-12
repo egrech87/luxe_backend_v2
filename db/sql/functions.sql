@@ -1403,3 +1403,67 @@ BEGIN
 	RETURN sumTotalCost;
 END;
 $totalCost$ LANGUAGE plpgsql;
+
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION quote_shipping_cost(quoteId BIGINT)
+RETURNS numeric AS $shippingCost$
+declare
+	sumShippingCost NUMERIC;
+BEGIN
+	SELECT SUM(aperture_shipping_cost(apertures.id))
+	INTO sumShippingCost
+	FROM apertures
+	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
+
+	RETURN sumShippingCost;
+END;
+$shippingCost$ LANGUAGE plpgsql;
+
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION quote_supplier_cost(quoteId BIGINT)
+RETURNS numeric AS $supplierCost$
+declare
+	sumSupplierCost NUMERIC;
+BEGIN
+	SELECT SUM(aperture_supplier_cost(apertures.id))
+	INTO sumSupplierCost
+	FROM apertures
+	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
+
+	RETURN sumSupplierCost;
+END;
+$supplierCost$ LANGUAGE plpgsql;
+
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION quote_installation_cost(quoteId BIGINT)
+RETURNS numeric AS $installationCost$
+declare
+	sumInstallationCost NUMERIC;
+BEGIN
+	SELECT SUM(aperture_installation_cost(apertures.id))
+	INTO sumInstallationCost
+	FROM apertures
+	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
+
+	RETURN sumInstallationCost;
+END;
+$installationCost$ LANGUAGE plpgsql;
+
+----------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION quote_contingency_cost(quoteId BIGINT)
+RETURNS numeric AS $contingencyCost$
+declare
+	sumContingencyCost NUMERIC;
+BEGIN
+	SELECT SUM(aperture_contingency_cost(apertures.id))
+	INTO sumContingencyCost
+	FROM apertures
+	WHERE apertures.quote_id = quoteId AND apertures.parent_aperture_id IS NULL AND apertures.deleted_at IS NULL;
+
+	RETURN sumContingencyCost;
+END;
+$contingencyCost$ LANGUAGE plpgsql;
