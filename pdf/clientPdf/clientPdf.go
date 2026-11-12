@@ -1067,6 +1067,21 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 					leftSectionBottomY = y + 2
 				}
 			}
+
+			// Write the label under the image
+			{
+				const label = "Interior View"
+
+				pdf.SetFontSize(7)
+				pdf.SetFontStyle("")
+
+				labelWd := pdf.GetStringWidth(label)
+				_, labelHt := pdf.GetFontSize()
+				pdf.SetXY(21.6+(imgWd-labelWd)/2, leftSectionBottomY+1.5)
+				pdf.CellFormat(labelWd, labelHt, label, "", 0, "CM", false, 0, "")
+
+				leftSectionBottomY += 1.5 + labelHt
+			}
 		}
 
 		fillRightSection := func() {
