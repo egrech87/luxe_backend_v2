@@ -62,6 +62,7 @@ type ApertureEntity struct {
 	IsNetsPriceCustom                   bool                         `json:"is_nets_price_custom" structs:"is_nets_price_custom" gorm:"default:false"`
 	NetsCost                            float64                      `json:"nets_cost" structs:"nets_cost"` // By default, nets quantity * nets price
 	IsNetsCostCustom                    bool                         `json:"is_nets_cost_custom" structs:"is_nets_cost_custom" gorm:"default:false"`
+	NetDescription                      string                       `json:"net_description" structs:"net_description" gorm:"default:''"`
 	SupplierCost                        float64                      `json:"supplier_cost" structs:"supplier_cost"`
 	IsSupplierCostCustom                bool                         `json:"is_supplier_cost_custom" structs:"is_supplier_cost_custom" gorm:"default:false"`
 	ShippingCost                        float64                      `json:"shipping_cost" structs:"shipping_cost"`
@@ -262,6 +263,9 @@ func (e *ApertureEntity) GetNetsCost() float64 {
 }
 func (e *ApertureEntity) GetIsNetsCostCustom() bool {
 	return e.IsNetsCostCustom
+}
+func (e *ApertureEntity) GetNetDescription() string {
+	return e.NetDescription
 }
 func (e *ApertureEntity) GetSupplierCost() float64 {
 	return e.SupplierCost
@@ -514,6 +518,9 @@ func (e *ApertureEntity) SetNetsCost(value float64) {
 func (e *ApertureEntity) SetIsNetsCostCustom(value bool) {
 	e.IsNetsCostCustom = value
 }
+func (e *ApertureEntity) SetNetDescription(value string) {
+	e.NetDescription = value
+}
 func (e *ApertureEntity) SetSupplierCost(value float64) {
 	e.SupplierCost = value
 }
@@ -632,7 +639,7 @@ func TableName() string {
 
 func (e *ApertureEntity) FieldNames() []string {
 	result := e.BaseEntity.FieldNames()
-	return append(result, []string{"is_friendly_name_custom", "block", "facade", "unit_name", "unit_number", "width", "height", "is_area_custom", "is_overall_u_value_custom", "actual_width", "actual_height", "is_type_custom", "is_handle_custom", "is_image_id_custom", "quantity", "comment", "supplier_comment", "accessories", "is_color_price_factor_custom", "is_glass_price_factor_custom", "is_color_cost_custom", "is_glass_cost_custom", "is_matrix_cost_custom", "is_nets_price_custom", "is_nets_cost_custom", "is_supplier_cost_custom", "is_shipping_cost_custom", "is_installation_per_unit_custom", "is_installation_cost_custom", "is_contingency_cost_custom", "is_item_cost_custom", "is_profit_margin_custom", "is_selling_price_custom", "is_discounted_selling_price_custom", "is_total_area_custom", "is_total_selling_price_custom", "is_total_discounted_selling_price_custom", "is_total_cost_custom", "is_total_profit_custom", "quote_id", "is_profile_id_custom", "is_glass_id_custom", "is_color_id_custom", "parent_aperture_id"}...)
+	return append(result, []string{"is_friendly_name_custom", "block", "facade", "unit_name", "unit_number", "width", "height", "is_area_custom", "is_overall_u_value_custom", "actual_width", "actual_height", "is_type_custom", "is_handle_custom", "is_image_id_custom", "quantity", "comment", "supplier_comment", "accessories", "is_color_price_factor_custom", "is_glass_price_factor_custom", "is_color_cost_custom", "is_glass_cost_custom", "is_matrix_cost_custom", "is_nets_price_custom", "is_nets_cost_custom", "net_description", "is_supplier_cost_custom", "is_shipping_cost_custom", "is_installation_per_unit_custom", "is_installation_cost_custom", "is_contingency_cost_custom", "is_item_cost_custom", "is_profit_margin_custom", "is_selling_price_custom", "is_discounted_selling_price_custom", "is_total_area_custom", "is_total_selling_price_custom", "is_total_discounted_selling_price_custom", "is_total_cost_custom", "is_total_profit_custom", "quote_id", "is_profile_id_custom", "is_glass_id_custom", "is_color_id_custom", "parent_aperture_id"}...)
 }
 
 func (e *ApertureEntity) ToJson() map[string]any {
@@ -1210,6 +1217,9 @@ func (e *ApertureEntity) GetUpdates(oldItem baseEntity.BaseEntityI) map[string]a
 	}
 	if e.IsNetsCostCustom != oldAperture.IsNetsCostCustom {
 		updates["is_nets_cost_custom"] = e.IsNetsCostCustom
+	}
+	if e.NetDescription != oldAperture.NetDescription {
+		updates["net_description"] = e.NetDescription
 	}
 	if e.SupplierCost != oldAperture.SupplierCost {
 		updates["supplier_cost"] = e.SupplierCost
