@@ -21,6 +21,7 @@ import (
 	"Quote/pdf/supplierPdf"
 	"Quote/rest/api/apiUtils"
 	"Quote/rest/api/baseController"
+	"Quote/service/quoteService"
 	"Quote/service/termsAndConditionsService"
 	"Quote/utils/imageUtils"
 	"Quote/utils/pathUtils"
@@ -96,6 +97,53 @@ func Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, model.GetEntity().GetID())
+}
+
+// Duplicate creates a copy of a quote together with all its apertures and their child apertures.
+// The copy gets the next quote number. It responds with the new quote.
+func Duplicate(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	authUserId, err := baseController.GetAuthenticatedId(c)
+	if withAuthorisation && err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusUnauthorized)
+		return
+	}
+
+	id, err := apiUtils.HttpPathUInt64(c, "quote_id")
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	newId, found, err := quoteService.Duplicate(ctx, *id, authUserId)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to duplicate item: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "item not available", http.StatusNotFound)
+		return
+	}
+
+	// Return the new quote, with its calculated fields, in the same shape as GET /quotes/by/id/:quote_id
+	selector, err := apiUtils.HttpHeaderSelector(c)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+	copiedQuote, found, err := GetDao().ReadByID(ctx, newId, selector)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch duplicated item: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "duplicated item not available", http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, copiedQuote.ToJson())
 }
 
 func Update(c *gin.Context) {

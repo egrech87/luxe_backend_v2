@@ -95,6 +95,7 @@ func NewPublicAPIRouter() *gin.Engine {
 			quoteGroup.DELETE("/soft/:quote_id", quoteController.SoftDelete)
 			quoteGroup.GET("/", quoteController.Get)
 			quoteGroup.GET("/by/id/:quote_id", quoteController.GetById)
+			quoteGroup.POST("/duplicate/:quote_id", quoteController.Duplicate)
 
 			calculationsGroup := quoteGroup.Group("/calculations")
 			{
