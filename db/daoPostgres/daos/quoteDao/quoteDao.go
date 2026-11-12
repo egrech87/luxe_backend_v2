@@ -143,6 +143,10 @@ func (d *QuoteDao) ReadCalculationsByID(ctx context.Context, quoteId uint64) (re
 	fieldNames = append(fieldNames, "quote_vat(quotes.id) as vat")
 	fieldNames = append(fieldNames, "quote_total_area(quotes.id) as total_area")
 	fieldNames = append(fieldNames, "quote_total_cost(quotes.id) as total_cost")
+	fieldNames = append(fieldNames, "quote_shipping_cost(quotes.id) as shipping_cost")
+	fieldNames = append(fieldNames, "quote_supplier_cost(quotes.id) as supplier_cost")
+	fieldNames = append(fieldNames, "quote_installation_cost(quotes.id) as installation_cost")
+	fieldNames = append(fieldNames, "quote_contingency_cost(quotes.id) as contingency_cost")
 
 	resultMap = map[string]any{}
 	result := db.GetDB().WithContext(ctx).Table(d.TableName()).Select(fieldNames).Scopes(d.ById(d.TableName(), quoteId)).Find(&resultMap)
