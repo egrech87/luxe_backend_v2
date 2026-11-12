@@ -34,7 +34,7 @@ func Duplicate(ctx context.Context, quoteId uint64, createdBy uint64) (newQuoteI
 		}
 
 		apertures := []*apertureEntity.ApertureEntity{}
-		if err := tx.Table(apertureTable).Where(apertureTable+".quote_id = ?", quoteId).Where(apertureTable + ".deleted_at IS NULL").Order(apertureTable + ".id ASC").Find(&apertures).Error; err != nil {
+		if err := tx.Table(apertureTable).Where(apertureTable+".quote_id = ?", quoteId).Where(apertureTable + ".deleted_at IS NULL").Order(apertureTable + ".created_at ASC, " + apertureTable + ".id ASC").Find(&apertures).Error; err != nil {
 			return err
 		}
 
@@ -73,38 +73,50 @@ func Duplicate(ctx context.Context, quoteId uint64, createdBy uint64) (newQuoteI
 			aperture.SetQuoteID(&newQuoteId)
 		}
 
-		// Copy the main apertures first, remembering which new aperture each old one became
+		// Copy the apertures in the order they were created (the list is sorted by creation date, oldest first),
+		// so the copies keep the same relative order. A child is attached to the copy of its parent.
 		newIdByOldId := map[uint64]uint64{}
-		for _, aperture := range apertures {
-			if aperture.GetParentApertureID() != nil {
-				continue
-			}
+		waitingForParent := map[uint64][]*apertureEntity.ApertureEntity{} // children whose parent comes later in the list
 
+		var copyAperture func(aperture *apertureEntity.ApertureEntity, newParentId *uint64) error
+		copyAperture = func(aperture *apertureEntity.ApertureEntity, newParentId *uint64) error {
 			oldId := aperture.GetID()
 			prepare(aperture)
+			aperture.SetParentApertureID(newParentId)
 			if err := tx.Create(aperture).Error; err != nil {
 				return err
 			}
 			newIdByOldId[oldId] = aperture.GetID()
+
+			// Now that this aperture has a copy, copy any children that were waiting for it
+			for _, child := range waitingForParent[oldId] {
+				if err := copyAperture(child, &[]uint64{aperture.GetID()}[0]); err != nil {
+					return err
+				}
+			}
+			delete(waitingForParent, oldId)
+
+			return nil
 		}
 
-		// Then the child apertures, attached to the copy of their parent
 		for _, aperture := range apertures {
-			if aperture.GetParentApertureID() == nil {
+			parentId := aperture.GetParentApertureID()
+			if parentId == nil {
+				if err := copyAperture(aperture, nil); err != nil {
+					return err
+				}
 				continue
 			}
 
-			newParentId, ok := newIdByOldId[*aperture.GetParentApertureID()]
-			if !ok {
-				continue // The parent is not part of the quote (e.g. deleted), so the child has nothing to attach to
-			}
-
-			prepare(aperture)
-			aperture.SetParentApertureID(&newParentId)
-			if err := tx.Create(aperture).Error; err != nil {
-				return err
+			if newParentId, ok := newIdByOldId[*parentId]; ok {
+				if err := copyAperture(aperture, &newParentId); err != nil {
+					return err
+				}
+			} else {
+				waitingForParent[*parentId] = append(waitingForParent[*parentId], aperture)
 			}
 		}
+		// Any child still waiting has a parent that is not part of the quote (e.g. deleted), so it is not copied
 
 		return nil
 	})
