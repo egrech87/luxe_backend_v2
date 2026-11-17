@@ -28,6 +28,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -288,6 +289,37 @@ func GetDatasheets(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+// GetOrderReferences returns the distinct, non-blank order references of all the apertures (main and child) of a quote,
+// sorted alphabetically. It responds with an empty array if there are none.
+func GetOrderReferences(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	id, err := apiUtils.HttpPathUInt64(c, "quote_id")
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	apertureDao := apertureDao.GetInstance()
+	tableName := apertureDao.TableName()
+	column := fmt.Sprintf("TRIM(%s.order_reference)", tableName)
+
+	orderReferences := []string{}
+	err = apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false).
+		Scopes(apertureDao.ByQuoteId(daoOperator.Equals, *id)).
+		Where(fmt.Sprintf("%s IS NOT NULL AND %s <> ''", column, column)).
+		Distinct().
+		Order(column).
+		Pluck(column, &orderReferences).Error
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the order references: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, orderReferences)
+}
+
 func GetCalculationsById(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
 	defer cancel()
@@ -399,7 +431,7 @@ func GenerateClientInvoice(c *gin.Context) {
 	}
 
 	// The datasheets of the aperture types (profiles), followed by those of the glass types
-	datasheetList, err := getDatasheetPdfs(ctx, *quoteId)
+	datasheetList, err := getDatasheetPdfs(ctx, *quoteId, nil)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
@@ -434,6 +466,18 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		return
 	}
 
+	// Repeated "order-reference" query parameters (order-reference=PO-1&order-reference=PO-2).
+	// When none is sent, all the apertures are selected.
+	orderReferences := []string{}
+	for _, orderReference := range c.QueryArray("order-reference") {
+		orderReference = strings.TrimSpace(orderReference)
+		if orderReference == "" {
+			apiUtils.HttpError(c.Writer, logger.GetInstance(), "'order-reference' query parameter must not be blank", http.StatusBadRequest)
+			return
+		}
+		orderReferences = append(orderReferences, orderReference)
+	}
+
 	selector := daoQuery.Selector{
 		SubItems: []string{"clients"},
 	}
@@ -445,6 +489,7 @@ func GenerateSupplierInvoice(c *gin.Context) {
 	quote := quoteI.(*quoteEntity.QuoteEntity)
 
 	var mainApertureList []*apertureEntity.ApertureEntity
+	var selectedApertureIds []uint64 // Only filled when the apertures were filtered by order reference
 	// Get the list of apertures
 	{
 		noImageBytes, err := imageUtils.FromFilePath(pathUtils.ToImagePath("no-image.jpg"))
@@ -507,6 +552,43 @@ func GenerateSupplierInvoice(c *gin.Context) {
 			mainApertureList = append(mainApertureList, apertureMap[key])
 		}
 
+		// Keep only the apertures with one of the requested order references, together with their child apertures.
+		// A main aperture is also kept when one of its child apertures has a requested order reference, since a child
+		// is always shown under its main aperture.
+		if len(orderReferences) > 0 {
+			wanted := map[string]bool{}
+			for _, orderReference := range orderReferences {
+				wanted[orderReference] = true
+			}
+
+			selectedMainApertures := []*apertureEntity.ApertureEntity{}
+			allApertures = []*apertureEntity.ApertureEntity{}
+			for _, mainAperture := range mainApertureList {
+				isSelected := wanted[strings.TrimSpace(mainAperture.OrderReference)]
+				for _, childAperture := range mainAperture.ChildApertures {
+					if wanted[strings.TrimSpace(childAperture.OrderReference)] {
+						isSelected = true
+					}
+				}
+
+				if isSelected {
+					selectedMainApertures = append(selectedMainApertures, mainAperture)
+					allApertures = append(allApertures, mainAperture)
+					allApertures = append(allApertures, mainAperture.ChildApertures...)
+				}
+			}
+			mainApertureList = selectedMainApertures
+
+			if len(mainApertureList) == 0 {
+				apiUtils.HttpError(c.Writer, logger.GetInstance(), "no apertures found for the given order reference(s)", http.StatusNotFound)
+				return
+			}
+
+			for _, aperture := range allApertures {
+				selectedApertureIds = append(selectedApertureIds, aperture.ID)
+			}
+		}
+
 		// Fill the apertures' image
 		{
 			for _, aperture := range allApertures {
@@ -528,7 +610,7 @@ func GenerateSupplierInvoice(c *gin.Context) {
 	}
 
 	// The datasheets of the aperture types (profiles), followed by those of the glass types
-	datasheetList, err := getDatasheetPdfs(ctx, *quoteId)
+	datasheetList, err := getDatasheetPdfs(ctx, *quoteId, selectedApertureIds)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
@@ -555,7 +637,8 @@ func GenerateSupplierInvoice(c *gin.Context) {
 
 // getDatasheetPdfs returns the datasheet PDFs for a quote: first those of the aperture types (profiles) used by its apertures,
 // then those of the glass types, each fetched the same way and ordered by type id.
-func getDatasheetPdfs(ctx context.Context, quoteId uint64) ([][]byte, error) {
+// When apertureIds is not nil, only the datasheets of those apertures are returned.
+func getDatasheetPdfs(ctx context.Context, quoteId uint64, apertureIds []uint64) ([][]byte, error) {
 	apertureDao := apertureDao.GetInstance()
 	fileDao := fileDao.GetInstance()
 	tableName := apertureDao.TableName()
@@ -580,6 +663,9 @@ func getDatasheetPdfs(ctx context.Context, quoteId uint64) ([][]byte, error) {
 		tx.Where(fmt.Sprintf("%s.%s IS NOT NULL", tableName, source.typeIdColumn))
 		tx.Where(fmt.Sprintf("%s.datasheet_id IS NOT NULL", source.typeTableName))
 		tx.Scopes(apertureDao.ByQuoteId(daoOperator.Equals, quoteId))
+		if apertureIds != nil {
+			tx.Where(fmt.Sprintf("%s.id IN ?", tableName), apertureIds)
+		}
 		tx.Group(fmt.Sprintf("%s.id, %s.type", source.typeTableName, fileTableName))
 		tx.Order(fmt.Sprintf("%s.id", source.typeTableName))
 

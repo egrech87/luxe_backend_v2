@@ -102,6 +102,11 @@ func NewPublicAPIRouter() *gin.Engine {
 				calculationsGroup.GET("/:quote_id", quoteController.GetCalculationsById)
 			}
 
+			orderReferencesGroup := quoteGroup.Group("/order-references")
+			{
+				orderReferencesGroup.GET("/:quote_id", quoteController.GetOrderReferences)
+			}
+
 			datasheetsGroup := quoteGroup.Group("/datasheets")
 			{
 				datasheetsGroup.GET("/:quote_id", quoteController.GetDatasheets)
