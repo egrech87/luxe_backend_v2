@@ -288,6 +288,37 @@ func GetDatasheets(c *gin.Context) {
 	c.JSON(http.StatusOK, pagination)
 }
 
+// GetOrderReferences returns the distinct, non-blank order references of all the apertures (main and child) of a quote,
+// sorted alphabetically. It responds with an empty array if there are none.
+func GetOrderReferences(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	id, err := apiUtils.HttpPathUInt64(c, "quote_id")
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	apertureDao := apertureDao.GetInstance()
+	tableName := apertureDao.TableName()
+	column := fmt.Sprintf("TRIM(%s.order_reference)", tableName)
+
+	orderReferences := []string{}
+	err = apertureDao.GetBasicTransaction(ctx, apertureDao.NewEntity, false).
+		Scopes(apertureDao.ByQuoteId(daoOperator.Equals, *id)).
+		Where(fmt.Sprintf("%s IS NOT NULL AND %s <> ''", column, column)).
+		Distinct().
+		Order(column).
+		Pluck(column, &orderReferences).Error
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), fmt.Sprintf("failed to fetch the order references: %s", err.Error()), http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, orderReferences)
+}
+
 func GetCalculationsById(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
 	defer cancel()
