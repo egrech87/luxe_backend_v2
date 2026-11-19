@@ -1314,6 +1314,65 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 		fillBottomSection()
 	}
 
+	// The Summary section, shown once at the end of the section
+	fillSummary := func() {
+		const (
+			margin    = 4.0
+			barHt     = 5.0
+			rowHt     = 6.0
+			boxHt     = barHt + 2*rowHt + 2
+			pageLimit = 285.0 // the bottom of the usable page
+			col1X     = 100.0
+			col1Wd    = 31.0
+			col2X     = col1X + col1Wd + 1
+			col2Wd    = 70.0
+		)
+
+		totalArea, amountOfApertures := summarise(mainApertureList)
+
+		y += 6
+		if y+boxHt > pageLimit {
+			newPage()
+			y += 2.2
+		}
+
+		// The heading bar
+		pdf.SetFillColor(155, 194, 230)
+		pdf.Rect(margin, y, 210-margin*2, barHt, "F")
+		text := "Summary"
+		pdf.SetTextColor(0, 0, 0)
+		pdf.SetFontStyle("B")
+		pdf.SetFontSize(11)
+		textWd := pdf.GetStringWidth(text)
+		pdf.SetXY((210-textWd)/2, y)
+		pdf.CellFormat(textWd, barHt, text, "", 0, "MC", false, 0, "")
+		y += barHt
+
+		// The box with the two figures
+		pdf.SetDrawColor(77, 77, 79)
+		pdf.SetLineWidth(0.3)
+		pdf.Rect(margin, y, 210-margin*2, 2*rowHt+2, "D")
+
+		pdf.SetFontSize(9)
+		rows := []struct{ label, value string }{
+			{"Total Area (SQM) :", fmt.Sprintf("%.2f", totalArea)},
+			{"Amount of Apertures :", formatters.ToReadableWholeNumber(amountOfApertures)},
+		}
+		y += 1
+		for _, row := range rows {
+			pdf.SetTextColor(77, 77, 79)
+			pdf.SetFontStyle("")
+			pdf.SetXY(col1X-20, y)
+			pdf.CellFormat(col1Wd+20, rowHt, row.label, "", 0, "MR", false, 0, "")
+
+			pdf.SetTextColor(0, 0, 0)
+			pdf.SetFontStyle("B")
+			pdf.SetXY(col2X, y)
+			pdf.CellFormat(col2Wd, rowHt, row.value, "", 0, "ML", false, 0, "")
+			y += rowHt
+		}
+	}
+
 	fillPageHeader()
 	y = 55.5
 
@@ -1342,6 +1401,8 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 		}
 	}
 
+	fillSummary()
+
 	var buff bytes.Buffer
 	err := pdf.Output(&buff)
 	if err != nil {
@@ -1349,4 +1410,18 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 	}
 
 	return buff.Bytes(), nil
+}
+
+// summarise returns the figures of the report's Summary section for the given (main) apertures:
+// the total area in square metres, which is the sum of actual width x actual height x quantity of each aperture,
+// and the amount of apertures, which is the sum of the apertures' quantity.
+// For a quote document the apertures given have their width and height in place of the actual ones (see withQuotedDimensions),
+// so the total area is then the sum of width x height x quantity.
+func summarise(apertureList []*apertureEntity.ApertureEntity) (totalArea float64, amountOfApertures int) {
+	for _, aperture := range apertureList {
+		totalArea += float64(aperture.ActualWidth) * float64(aperture.ActualHeight) * float64(aperture.Quantity) / 1000000.0
+		amountOfApertures += aperture.Quantity
+	}
+
+	return totalArea, amountOfApertures
 }
