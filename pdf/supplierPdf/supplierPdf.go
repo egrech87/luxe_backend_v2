@@ -20,11 +20,62 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Generate builds the supplier PDF. Section 2 (the table of apertures) is only included when includeBom is true.
+// DocumentType says what the supplier PDF is used for.
+type DocumentType string
+
+const (
+	// DocumentTypeOrder shows the actual width and height of the apertures.
+	DocumentTypeOrder DocumentType = "order"
+	// DocumentTypeQuote shows the quoted width and height of the apertures instead of the actual ones.
+	DocumentTypeQuote DocumentType = "quote"
+)
+
+// ParseDocumentType converts the text "order" or "quote" into a DocumentType.
+func ParseDocumentType(text string) (DocumentType, error) {
+	switch DocumentType(text) {
+	case DocumentTypeOrder:
+		return DocumentTypeOrder, nil
+	case DocumentTypeQuote:
+		return DocumentTypeQuote, nil
+	}
+
+	return "", errors.Errorf("'%s' is not a valid document type. It must be either order or quote", text)
+}
+
+// withQuotedDimensions returns copies of the apertures (and of their child apertures) whose actual width and height
+// are replaced by their width and height, so that everything calculated from them uses the quoted size.
+// The given apertures are not modified.
+func withQuotedDimensions(apertureList []*apertureEntity.ApertureEntity) []*apertureEntity.ApertureEntity {
+	quoted := func(aperture *apertureEntity.ApertureEntity) *apertureEntity.ApertureEntity {
+		copied := *aperture
+		copied.ActualWidth = aperture.Width
+		copied.ActualHeight = aperture.Height
+		return &copied
+	}
+
+	result := make([]*apertureEntity.ApertureEntity, 0, len(apertureList))
+	for _, aperture := range apertureList {
+		copied := quoted(aperture)
+		copied.ChildApertures = nil
+		for _, child := range aperture.ChildApertures {
+			copied.ChildApertures = append(copied.ChildApertures, quoted(child))
+		}
+		result = append(result, copied)
+	}
+
+	return result
+}
+
+// Generate builds the supplier PDF. For a quote document the width and height replace the actual width and height.
+// Section 2 (the table of apertures) is only included when includeBom is true.
 // If termsAndConditions is not empty, that PDF is merged at the very end of the report, after the datasheets.
-func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool) ([]byte, error) {
+func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool, documentType DocumentType) ([]byte, error) {
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
+	}
+
+	if documentType == DocumentTypeQuote {
+		mainApertureList = withQuotedDimensions(mainApertureList)
 	}
 
 	// var color *colorEntity.ColorEntity

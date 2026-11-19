@@ -518,6 +518,18 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		return
 	}
 
+	// "document-type" is always sent: for a quote the width and height replace the actual width and height
+	documentTypeText, err := apiUtils.HttpQueryString(c, "document-type", true)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+	documentType, err := supplierPdf.ParseDocumentType(*documentTypeText)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// "include-bom" is always sent: section 2 of the report is only included when it is true
 	includeBom, err := apiUtils.HttpQueryBool(c, "include-bom", true)
 	if err != nil {
@@ -682,7 +694,7 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		return
 	}
 
-	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions, *includeBom)
+	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions, *includeBom, documentType)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
