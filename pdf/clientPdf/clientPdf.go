@@ -919,7 +919,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetTextColor(88, 144, 82)
 			pdf.SetFontStyle("B")
 			pdf.SetXY(margin, y)
-			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("Unit : %s", aperture.GetUnitFullName()), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("SKU : %s - %d", aperture.GetUnitFullName(), aperture.GetID()), "", 0, "CM", false, 0, "")
 
 			pdf.SetXY(middleLineX, y)
 			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %dx%d mm", aperture.GetWidth(), aperture.GetHeight()), "", 0, "CM", false, 0, "")

@@ -343,7 +343,7 @@ func (d *ApertureDao) SoftDeleteByQuoteId(ctx context.Context, quoteId uint64, d
 
 // Fetches the main apertures only for a particular quote
 func (d *ApertureDao) ReadMainByQuoteId(ctx context.Context, quoteId uint64, pagination *daoQuery.Pagination, selector *daoQuery.Selector) error {
-	return d.ReadMultiple(d.GetBasicTransaction(ctx, d.NewEntity, false).Scopes(d.ByQuoteId(daoOperator.Equals, quoteId), d.ByParentApertureId(daoOperator.Is, nil)).Order("block Asc, unit_name Asc, unit_number Asc"), d, pagination, selector)
+	return d.ReadMultiple(d.GetBasicTransaction(ctx, d.NewEntity, false).Scopes(d.ByQuoteId(daoOperator.Equals, quoteId), d.ByParentApertureId(daoOperator.Is, nil)).Order("block Asc, unit_name Asc, unit_number Asc, apertures.id Asc"), d, pagination, selector)
 }
 
 // Fetches the child apertures only for a particular quote
