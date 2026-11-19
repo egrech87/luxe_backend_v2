@@ -15,6 +15,7 @@ import (
 // Row holds the values shown for one aperture of the discrepancies table.
 type Row struct {
 	SKU          uint64
+	FriendlyName string
 	ApertureType string
 	Glass        string
 	Colour       string
@@ -33,6 +34,7 @@ type Row struct {
 func NewRow(aperture *apertureEntity.ApertureEntity) Row {
 	row := Row{
 		SKU:          aperture.GetID(),
+		FriendlyName: aperture.GetFriendlyName(),
 		Width:        aperture.GetWidth(),
 		Height:       aperture.GetHeight(),
 		ActualWidth:  aperture.GetActualWidth(),
@@ -62,7 +64,7 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 		margin     = 10.0
 		lineHt     = 4.2
 		cellPad    = 1.0
-		headerHt   = 10.0
+		headerHt   = 13.0
 		bottomLine = 190.0 // A4 landscape is 210 mm high; rows that would pass this line start a new page
 	)
 
@@ -72,17 +74,18 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 		Align string // "L" for text, "R" for numbers
 	}
 	columns := []column{
-		{"SKU", 14, "L"},
-		{"Aperture Type", 38, "L"},
-		{"Glass", 36, "L"},
-		{"Colour", 28, "L"},
-		{"Width (mm)", 19, "R"},
-		{"Height (mm)", 19, "R"},
-		{"Actual Width (mm)", 22, "R"},
-		{"Actual Height (mm)", 22, "R"},
-		{"Actual Price", 27, "R"},
-		{"Quoted Price", 27, "R"},
-		{"Discrepancy", 25, "R"},
+		{"SKU", 12, "L"},
+		{"Friendly Name", 34, "L"},
+		{"Aperture Type", 32, "L"},
+		{"Glass", 30, "L"},
+		{"Colour", 24, "L"},
+		{"Width (mm)", 17, "R"},
+		{"Height (mm)", 17, "R"},
+		{"Actual Width (mm)", 20, "R"},
+		{"Actual Height (mm)", 20, "R"},
+		{"Actual Price", 25, "R"},
+		{"Quoted Price", 25, "R"},
+		{"Discrepancy", 21, "R"},
 	}
 
 	pdf := fpdf.New("L", "mm", "A4", "")
@@ -131,6 +134,7 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 		row := NewRow(aperture)
 		texts := []string{
 			fmt.Sprintf("%d", row.SKU),
+			row.FriendlyName,
 			row.ApertureType,
 			row.Glass,
 			row.Colour,
