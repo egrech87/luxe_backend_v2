@@ -184,13 +184,16 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 	return buff.Bytes(), nil
 }
 
-// readableMoney formats an amount with thousands separators and two decimals, keeping the sign in front.
+// euro is the Euro sign in the Windows-1252 encoding used by the PDF's core fonts.
+const euro = "\x80"
+
+// readableMoney formats an amount in Euro with thousands separators and two decimals, keeping the sign in front: -€1,234.50.
 func readableMoney(amount float64) string {
 	if math.Abs(amount) < 0.005 {
-		amount = 0 // avoid showing "-0.00"
+		amount = 0 // avoid showing "-€0.00"
 	}
 	if amount < 0 {
-		return "-" + formatters.ToReadableNumber_2dp(-amount)
+		return "-" + euro + formatters.ToReadableNumber_2dp(-amount)
 	}
-	return formatters.ToReadableNumber_2dp(amount)
+	return euro + formatters.ToReadableNumber_2dp(amount)
 }

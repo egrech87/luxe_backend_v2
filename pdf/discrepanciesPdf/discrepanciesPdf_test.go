@@ -69,7 +69,7 @@ func TestGeneratePaging(t *testing.T) {
 }
 
 func TestReadableMoney(t *testing.T) {
-	for amount, want := range map[float64]string{1234.5: "1,234.50", -300.714: "-300.71", -0.001: "0.00", 0: "0.00", -1234567.891: "-1,234,567.89"} {
+	for amount, want := range map[float64]string{1234.5: "\x801,234.50", -300.714: "-\x80300.71", -0.001: "\x800.00", 0: "\x800.00", -1234567.891: "-\x801,234,567.89"} {
 		if got := readableMoney(amount); got != want {
 			t.Fatalf("readableMoney(%v) = %q, want %q", amount, got, want)
 		}
