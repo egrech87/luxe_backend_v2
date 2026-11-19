@@ -58,7 +58,8 @@ func NewRow(aperture *apertureEntity.ApertureEntity) Row {
 	return row
 }
 
-// Generate creates the discrepancies PDF: a table with a row for each of the given (main) apertures.
+// Generate creates the discrepancies PDF: a table with a row for each of the given (main) apertures,
+// followed by a row with the total actual price, total quoted price and total discrepancy.
 func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.ApertureEntity) ([]byte, error) {
 	const (
 		margin     = 10.0
@@ -130,8 +131,13 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 	}
 	drawHeader()
 
+	var totalActualPrice, totalQuotedPrice, totalDiscrepancy float64
+
 	for _, aperture := range apertureList {
 		row := NewRow(aperture)
+		totalActualPrice += row.ActualPrice
+		totalQuotedPrice += row.QuotedPrice
+		totalDiscrepancy += row.Discrepancy
 		texts := []string{
 			fmt.Sprintf("%d", row.SKU),
 			row.FriendlyName,
@@ -178,6 +184,45 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 			x += col.Wd
 		}
 		y += rowHt
+	}
+
+	// The totals row, at the bottom of the table
+	{
+		totalHt := lineHt + 2*cellPad
+		if y+totalHt > bottomLine {
+			pdf.AddPage()
+			y = margin
+			drawHeader()
+		}
+
+		pdf.SetFont("Helvetica", "B", 8)
+		pdf.SetFillColor(225, 235, 247)
+		pdf.SetDrawColor(77, 77, 79)
+		pdf.SetTextColor(15, 36, 62)
+		pdf.SetLineWidth(0.3)
+
+		// The label spans all the columns before the three price columns
+		const priceColumns = 3
+		labelColumns := columns[:len(columns)-priceColumns]
+		labelWd := 0.0
+		for _, col := range labelColumns {
+			labelWd += col.Wd
+		}
+		x := margin
+		pdf.Rect(x, y, labelWd, totalHt, "FD")
+		pdf.SetXY(x+cellPad, y+cellPad)
+		pdf.CellFormat(labelWd-2*cellPad, lineHt, "Total", "", 0, "RM", false, 0, "")
+		x += labelWd
+
+		totals := []float64{totalActualPrice, totalQuotedPrice, totalDiscrepancy}
+		for i, total := range totals {
+			col := columns[len(labelColumns)+i]
+			pdf.Rect(x, y, col.Wd, totalHt, "FD")
+			pdf.SetXY(x+cellPad, y+cellPad)
+			pdf.CellFormat(col.Wd-2*cellPad, lineHt, readableMoney(total), "", 0, "RM", false, 0, "")
+			x += col.Wd
+		}
+		y += totalHt
 	}
 
 	var buff bytes.Buffer

@@ -8,6 +8,10 @@ import (
 	"Quote/db/entity/entities/quoteEntity"
 	"bytes"
 	"math"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/pdfcpu/pdfcpu/pkg/api"
@@ -73,6 +77,43 @@ func TestReadableMoney(t *testing.T) {
 	for amount, want := range map[float64]string{1234.5: "\x801,234.50", -300.714: "-\x80300.71", -0.001: "\x800.00", 0: "\x800.00", -1234567.891: "-\x801,234,567.89"} {
 		if got := readableMoney(amount); got != want {
 			t.Fatalf("readableMoney(%v) = %q, want %q", amount, got, want)
+		}
+	}
+}
+
+func TestGenerateShowsTotals(t *testing.T) {
+	if _, err := exec.LookPath("pdftotext"); err != nil {
+		t.Skip("pdftotext is not available")
+	}
+
+	out, err := Generate(quoteEntity.New(), []*apertureEntity.ApertureEntity{
+		aperture(1, 1000, 2000, 1100, 2000, 100),    // actual 220.00, quoted 200.00
+		aperture(3, 1200, 2100, 1150, 2050, 1850.5), // actual 4,362.55, quoted 4,663.26
+		aperture(4, 900, 900, 900, 900, 333.33),     // actual 270.00, quoted 270.00
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	file := filepath.Join(t.TempDir(), "discrepancies.pdf")
+	if err := os.WriteFile(file, out, 0644); err != nil {
+		t.Fatal(err)
+	}
+	text, err := exec.Command("pdftotext", "-layout", file, "-").Output()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var totalLine string
+	for _, line := range strings.Split(string(text), "\n") {
+		if strings.Contains(line, "Total") {
+			totalLine = line
+		}
+	}
+	// The euro sign is not part of the extracted text encoding, so only the amounts are compared
+	for _, want := range []string{"4,852.55", "5,133.26", "-", "280.71"} {
+		if !strings.Contains(totalLine, want) {
+			t.Fatalf("totals row %q does not contain %q", totalLine, want)
 		}
 	}
 }
