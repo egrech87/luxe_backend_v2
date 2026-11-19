@@ -16,6 +16,7 @@ import (
 type Row struct {
 	SKU          uint64
 	FriendlyName string
+	Unit         string
 	ApertureType string
 	Glass        string
 	Colour       string
@@ -35,6 +36,7 @@ func NewRow(aperture *apertureEntity.ApertureEntity) Row {
 	row := Row{
 		SKU:          aperture.GetID(),
 		FriendlyName: aperture.GetFriendlyName(),
+		Unit:         aperture.GetUnitFullName(),
 		Width:        aperture.GetWidth(),
 		Height:       aperture.GetHeight(),
 		ActualWidth:  aperture.GetActualWidth(),
@@ -76,16 +78,17 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 	}
 	columns := []column{
 		{"SKU", 12, "L"},
-		{"Friendly Name", 34, "L"},
-		{"Aperture Type", 32, "L"},
-		{"Glass", 30, "L"},
-		{"Colour", 24, "L"},
-		{"Width (mm)", 17, "R"},
-		{"Height (mm)", 17, "R"},
-		{"Actual Width (mm)", 20, "R"},
-		{"Actual Height (mm)", 20, "R"},
-		{"Actual Price", 25, "R"},
-		{"Quoted Price", 25, "R"},
+		{"Friendly Name", 30, "L"},
+		{"Unit", 18, "L"},
+		{"Aperture Type", 28, "L"},
+		{"Glass", 28, "L"},
+		{"Colour", 22, "L"},
+		{"Width (mm)", 16, "R"},
+		{"Height (mm)", 16, "R"},
+		{"Actual Width (mm)", 19, "R"},
+		{"Actual Height (mm)", 19, "R"},
+		{"Actual Price", 24, "R"},
+		{"Quoted Price", 24, "R"},
 		{"Discrepancy", 21, "R"},
 	}
 
@@ -141,6 +144,7 @@ func Generate(quote *quoteEntity.QuoteEntity, apertureList []*apertureEntity.Ape
 		texts := []string{
 			fmt.Sprintf("%d", row.SKU),
 			row.FriendlyName,
+			row.Unit,
 			row.ApertureType,
 			row.Glass,
 			row.Colour,

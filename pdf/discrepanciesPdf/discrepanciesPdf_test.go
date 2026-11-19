@@ -23,6 +23,7 @@ func aperture(id uint64, w, h, aw, ah int, price float64) *apertureEntity.Apertu
 	a.Width, a.Height, a.ActualWidth, a.ActualHeight = w, h, aw, ah
 	a.DiscountedSellingPrice = price
 	a.FriendlyName = "Name"
+	a.UnitName, a.UnitNumber = "Window", 3
 	a.Profile = &profileEntity.ProfileEntity{FriendlyName: "Type"}
 	a.Glass = &glassEntity.GlassEntity{FriendlyName: "Glass"}
 	a.Color = &colorEntity.ColorEntity{FriendlyName: "Colour"}
@@ -31,7 +32,7 @@ func aperture(id uint64, w, h, aw, ah int, price float64) *apertureEntity.Apertu
 
 func TestNewRow(t *testing.T) {
 	row := NewRow(aperture(7, 1000, 2000, 1100, 2000, 100))
-	if row.SKU != 7 || row.FriendlyName != "Name" || row.ApertureType != "Type" || row.Glass != "Glass" || row.Colour != "Colour" {
+	if row.SKU != 7 || row.FriendlyName != "Name" || row.Unit != "Window 3" || row.ApertureType != "Type" || row.Glass != "Glass" || row.Colour != "Colour" {
 		t.Fatalf("unexpected row: %+v", row)
 	}
 	if math.Abs(row.QuotedPrice-200) > 1e-9 || math.Abs(row.ActualPrice-220) > 1e-9 || math.Abs(row.Discrepancy-20) > 1e-9 {
