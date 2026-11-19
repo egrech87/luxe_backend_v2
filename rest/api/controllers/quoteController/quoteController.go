@@ -18,6 +18,7 @@ import (
 	"Quote/model/enums/fileTypes"
 	"Quote/model/models/quoteModel"
 	"Quote/pdf/clientPdf"
+	"Quote/pdf/discrepanciesPdf"
 	"Quote/pdf/supplierPdf"
 	"Quote/rest/api/apiUtils"
 	"Quote/rest/api/baseController"
@@ -318,6 +319,57 @@ func GetOrderReferences(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, orderReferences)
+}
+
+// GetDiscrepancies returns a PDF with a table of all the main apertures of a quote, comparing the quoted price
+// (quoted width x height) with the actual price (actual width x height).
+func GetDiscrepancies(c *gin.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), baseController.Timeout)
+	defer cancel()
+
+	quoteId, err := apiUtils.HttpPathUInt64(c, "quote_id")
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	quoteI, found, err := quoteDao.GetInstance().ReadByID(ctx, *quoteId, nil)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if !found {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), "item not available", http.StatusNotFound)
+		return
+	}
+	quote := quoteI.(*quoteEntity.QuoteEntity)
+
+	// Load all the main apertures, with the details shown in the table
+	p := daoQuery.NewPagination()
+	p.Applies = false
+	selector := daoQuery.Selector{
+		SubItems: []string{"colors", "glasses", "profiles"},
+	}
+	if err := apertureDao.GetInstance().ReadMainByQuoteId(ctx, *quoteId, p, &selector); err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	apertureList := []*apertureEntity.ApertureEntity{}
+	for _, apertureI := range p.Data.([]any) {
+		apertureList = append(apertureList, apertureI.(*apertureEntity.ApertureEntity))
+	}
+
+	pdfBytes, err := discrepanciesPdf.Generate(quote, apertureList)
+	if err != nil {
+		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=Discrepancies.pdf")
+	c.Header("Content-Type", "application/pdf")
+	c.Header("Accept-Length", fmt.Sprintf("%d", len(pdfBytes)))
+	c.Writer.Write(pdfBytes)
 }
 
 func GetCalculationsById(c *gin.Context) {
