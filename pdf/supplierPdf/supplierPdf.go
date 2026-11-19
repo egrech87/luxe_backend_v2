@@ -20,8 +20,9 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Generate builds the supplier PDF. If termsAndConditions is not empty, that PDF is merged at the very end of the report, after the datasheets.
-func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte) ([]byte, error) {
+// Generate builds the supplier PDF. Section 2 (the table of apertures) is only included when includeBom is true.
+// If termsAndConditions is not empty, that PDF is merged at the very end of the report, after the datasheets.
+func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool) ([]byte, error) {
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
 	}
@@ -39,11 +40,13 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	// }
 	// sections = append(sections, section1)
 
-	section2, err := generateSection2(mainApertureList)
-	if err != nil {
-		return []byte{}, err
+	if includeBom {
+		section2, err := generateSection2(mainApertureList)
+		if err != nil {
+			return []byte{}, err
+		}
+		sections = append(sections, section2)
 	}
-	sections = append(sections, section2)
 
 	section3, err := generateSection3(quote, mainApertureList)
 	if err != nil {

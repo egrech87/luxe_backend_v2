@@ -145,7 +145,7 @@ func Test(c *gin.Context) {
 		}
 	}
 
-	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, nil)
+	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, nil, true)
 	if err != nil {
 		fmt.Printf("%s", err.Error())
 		return
