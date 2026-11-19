@@ -1413,11 +1413,13 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 }
 
 // summarise returns the figures of the report's Summary section for the given (main) apertures:
-// the total area in square metres, which is the sum of actual width x actual height of each aperture,
+// the total area in square metres, which is the sum of actual width x actual height x quantity of each aperture,
 // and the amount of apertures, which is the sum of the apertures' quantity.
+// For a quote document the apertures given have their width and height in place of the actual ones (see withQuotedDimensions),
+// so the total area is then the sum of width x height x quantity.
 func summarise(apertureList []*apertureEntity.ApertureEntity) (totalArea float64, amountOfApertures int) {
 	for _, aperture := range apertureList {
-		totalArea += float64(aperture.ActualWidth) * float64(aperture.ActualHeight) / 1000000.0
+		totalArea += float64(aperture.ActualWidth) * float64(aperture.ActualHeight) * float64(aperture.Quantity) / 1000000.0
 		amountOfApertures += aperture.Quantity
 	}
 
