@@ -564,7 +564,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 		pdf.SetXY(col1.X, 22.5)
 		pdf.CellFormat(col1.Wd, 5, "Block", "", 0, "MC", true, 0, "")
 		pdf.SetXY(col2.X, 22.5)
-		pdf.CellFormat(col2.Wd, 5, "Facade", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col2.Wd, 5, "Room", "", 0, "MC", true, 0, "")
 		pdf.SetXY(col3.X, 22.5)
 		pdf.CellFormat(col3.Wd, 5, "Unit", "", 0, "MC", true, 0, "")
 		pdf.SetTextColor(255, 0, 0)
@@ -626,7 +626,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 				cellList[0].Text = fmt.Sprintf("BLOCK %s", aperture.Block)
 				cellList[0].Align = "C"
 
-				cellList[1].Text = fmt.Sprintf("Facade %s", aperture.Facade)
+				cellList[1].Text = aperture.Facade
 				cellList[1].Align = "C"
 
 				cellList[2].Text = fmt.Sprintf("%s", aperture.GetUnitFullName())
@@ -919,7 +919,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetTextColor(88, 144, 82)
 			pdf.SetFontStyle("B")
 			pdf.SetXY(margin, y)
-			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("SKU : %s - %d", aperture.GetUnitFullName(), aperture.GetID()), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(middleLineX-margin, hLineGap, skuHeading(aperture), "", 0, "CM", false, 0, "")
 
 			pdf.SetXY(middleLineX, y)
 			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %dx%d mm", aperture.GetWidth(), aperture.GetHeight()), "", 0, "CM", false, 0, "")
@@ -1672,4 +1672,16 @@ func generateSection4(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 	}
 
 	return buff.Bytes(), nil
+}
+
+// skuHeading returns the heading of an aperture in section 3: "SKU : Unit Name - Room - Id".
+// The room is left out when the aperture has none, to avoid an empty gap between the dashes.
+func skuHeading(aperture *apertureEntity.ApertureEntity) string {
+	parts := []string{aperture.GetUnitFullName()}
+	if room := strings.TrimSpace(aperture.GetFacade()); room != "" {
+		parts = append(parts, room)
+	}
+	parts = append(parts, fmt.Sprintf("%d", aperture.GetID()))
+
+	return "SKU : " + strings.Join(parts, " - ")
 }
