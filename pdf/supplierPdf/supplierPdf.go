@@ -68,8 +68,9 @@ func withQuotedDimensions(apertureList []*apertureEntity.ApertureEntity) []*aper
 
 // Generate builds the supplier PDF. For a quote document the width and height replace the actual width and height.
 // Section 2 (the table of apertures) is only included when includeBom is true.
+// The fixed texts of sections 2 and 3 and the page numbers are written in the given language; datasheets and the terms and conditions are added as they are.
 // If termsAndConditions is not empty, that PDF is merged at the very end of the report, after the datasheets.
-func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool, documentType DocumentType) ([]byte, error) {
+func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, datasheetList [][]byte, termsAndConditions []byte, includeBom bool, documentType DocumentType, language Language) ([]byte, error) {
 	if err := validate(quote, mainApertureList); err != nil {
 		return []byte{}, err
 	}
@@ -92,14 +93,14 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	// sections = append(sections, section1)
 
 	if includeBom {
-		section2, err := generateSection2(mainApertureList)
+		section2, err := generateSection2(mainApertureList, language)
 		if err != nil {
 			return []byte{}, err
 		}
 		sections = append(sections, section2)
 	}
 
-	section3, err := generateSection3(quote, mainApertureList)
+	section3, err := generateSection3(quote, mainApertureList, language)
 	if err != nil {
 		return []byte{}, err
 	}
@@ -117,7 +118,7 @@ func Generate(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity
 	}
 
 	// Number every page of the final document
-	fullPdf, err = pdfUtils.AddPageNumbers(fullPdf)
+	fullPdf, err = pdfUtils.AddPageNumbersText(fullPdf, language.PageNumberText())
 	if err != nil {
 		return []byte{}, err
 	}
@@ -400,11 +401,13 @@ func generateSection1(quote *quoteEntity.QuoteEntity, color *colorEntity.ColorEn
 	return buff.Bytes(), nil
 }
 
-func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte, error) {
+func generateSection2(mainApertureList []*apertureEntity.ApertureEntity, language Language) ([]byte, error) {
+	t := textsFor(language)
+
 	pdf := fpdf.New("L", "mm", "Letter", "")
 	pdf.SetMargins(5, 5, 5)
 	pdf.AddPage()
-	pdf.SetFont("Helvetica", "", 12)
+	pdf.SetFont(prepareFonts(pdf, language), "", 12)
 
 	type ColInfo struct {
 		X  float64
@@ -557,7 +560,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 		pdf.SetFillColor(155, 194, 230)
 		pdf.SetFontSize(5)
 		pdf.SetXY(col5.X, 19.7)
-		pdf.CellFormat(91.4, 2.5, "Client new request", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(91.4, 2.5, t.ClientNewRequest, "", 0, "MC", true, 0, "")
 
 		// Draw background for header line 2
 		pdf.SetFillColor(191, 191, 191)
@@ -565,35 +568,35 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 
 		// Write the header line 2
 		pdf.SetXY(col1.X, 22.5)
-		pdf.CellFormat(col1.Wd, 5, "Block", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col1.Wd, 5, t.Block, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col2.X, 22.5)
-		pdf.CellFormat(col2.Wd, 5, "Room", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col2.Wd, 5, t.Room, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col3.X, 22.5)
-		pdf.CellFormat(col3.Wd, 5, "Unit", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col3.Wd, 5, t.Unit, "", 0, "MC", true, 0, "")
 		pdf.SetTextColor(255, 0, 0)
 		pdf.SetFontStyle("S")
 		pdf.SetXY(col4.X, 22.5)
-		pdf.CellFormat(col4.Wd, 5, "Original Request (Superseded)", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col4.Wd, 5, t.OriginalRequestSuperseded, "", 0, "MC", true, 0, "")
 		pdf.SetTextColor(0, 0, 0)
 		pdf.SetFontStyle("")
 		pdf.SetXY(col5.X, 22.5)
-		pdf.CellFormat(col5.Wd, 5, "Aperture Reference", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col5.Wd, 5, t.ApertureReference, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col6.X, 22.5)
-		pdf.CellFormat(col6.Wd, 5, "Type / System", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col6.Wd, 5, t.TypeSystem, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col7.X, 22.5)
-		pdf.CellFormat(col7.Wd, 5, "Width (mm)", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col7.Wd, 5, t.WidthMm, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col8.X, 22.5)
-		pdf.CellFormat(col8.Wd, 5, "Height (mm)", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col8.Wd, 5, t.HeightMm, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col9.X, 22.5)
-		pdf.CellFormat(col9.Wd, 5, "Glass", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col9.Wd, 5, t.Glass, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col10.X, 22.5)
-		pdf.CellFormat(col10.Wd, 5, "UNIT", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col10.Wd, 5, t.UnitUpper, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col11.X, 22.5)
-		pdf.CellFormat(col11.Wd, 5, "AMOUNT", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col11.Wd, 5, t.AmountUpper, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col12.X, 22.5)
 		pdf.CellFormat(col12.Wd, 5, "", "", 0, "MC", true, 0, "")
 		pdf.SetXY(col13.X, 22.5)
-		pdf.CellFormat(col13.Wd, 5, "TOTAL AREA", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col13.Wd, 5, t.TotalAreaUpper, "", 0, "MC", true, 0, "")
 		pdf.SetXY(col14.X, 22.5)
 		pdf.CellFormat(col14.Wd, 5, "", "", 0, "MC", true, 0, "")
 
@@ -626,7 +629,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 
 				reference := fmt.Sprintf("%s-%d-%d-%s", typeSystem, aperture.ActualWidth, aperture.ActualHeight, aperture.Glass.GlazingStructure)
 
-				cellList[0].Text = fmt.Sprintf("BLOCK %s", aperture.Block)
+				cellList[0].Text = fmt.Sprintf(t.BlockValue, aperture.Block)
 				cellList[0].Align = "C"
 
 				cellList[1].Text = aperture.Facade
@@ -655,7 +658,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 				cellList[8].Text = aperture.Glass.GlazingStructure
 				cellList[8].Align = "C"
 
-				cellList[9].Text = "piece"
+				cellList[9].Text = t.Piece
 				cellList[9].Align = "C"
 
 				cellList[10].Text = formatters.ToReadableWholeNumber(aperture.Quantity)
@@ -756,11 +759,13 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 	return buff.Bytes(), nil
 }
 
-func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity) ([]byte, error) {
+func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertureEntity.ApertureEntity, language Language) ([]byte, error) {
+	t := textsFor(language)
+
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.SetMargins(5, 5, 5)
 	pdf.AddPage()
-	pdf.SetFont("Helvetica", "", 12)
+	pdf.SetFont(prepareFonts(pdf, language), "", 12)
 
 	var y float64
 	var aperturesInPage int // To keeps track of the amount of apertures in the current page
@@ -813,7 +818,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 			// Line 4
 			pdf.SetXY(x, vatLineY)
-			pdf.CellFormat(100, 2, "Vat: MT2902-3304", "", 0, "TL", false, 0, "")
+			pdf.CellFormat(100, 2, t.VatLine, "", 0, "TL", false, 0, "")
 		}
 
 		fillRightSection := func() {
@@ -828,7 +833,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			y = 26.5
 			clientFullname := quote.Client.GetFullName()
 			pdf.SetXY(x, y)
-			pdf.CellFormat(100, 2, "Customer : "+clientFullname, "", 0, "TL", false, 0, "")
+			pdf.CellFormat(100, 2, t.Customer+clientFullname, "", 0, "TL", false, 0, "")
 
 			// Address Line
 			addressPieces := strings.Split(quote.Client.Address, "\n")
@@ -843,12 +848,12 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 				address += ", " + addressPieces[i]
 			}
 
-			projectWidth := pdf.GetStringWidth("Project : ")
+			projectWidth := pdf.GetStringWidth(t.Project)
 			addressLines := pdf.SplitLines([]byte(address), 210-margin-x-projectWidth)
 
 			y += lineHt
 			pdf.SetXY(x, y)
-			pdf.CellFormat(projectWidth, 2, "Project : ", "", 0, "TL", false, 0, "")
+			pdf.CellFormat(projectWidth, 2, t.Project, "", 0, "TL", false, 0, "")
 
 			if len(addressLines) > 0 {
 				pdf.SetXY(x+projectWidth, y)
@@ -865,12 +870,12 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			y += lineHt
 			now := time.Now()
 			pdf.SetXY(x, y)
-			pdf.CellFormat(5, 2, "Date : "+now.Format("02.01.2006"), "", 0, "TL", false, 0, "")
+			pdf.CellFormat(5, 2, t.Date+now.Format("02.01.2006"), "", 0, "TL", false, 0, "")
 
 			// Quote line
 			y += lineHt
 			pdf.SetXY(x, y)
-			pdf.CellFormat(5, 2, fmt.Sprintf("Quote : %d", quote.GetNumber()), "", 0, "TL", false, 0, "")
+			pdf.CellFormat(5, 2, fmt.Sprintf(t.Quote, quote.GetNumber()), "", 0, "TL", false, 0, "")
 		}
 
 		fillLeftSection()
@@ -898,7 +903,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 				pdf.Rect(margin, y, 210-margin*2, 5, "F")
 
 				// Write the header line
-				text := "Combined Aperture"
+				text := t.CombinedAperture
 				textWd := pdf.GetStringWidth(text)
 				pdf.SetTextColor(0, 0, 0)
 				pdf.SetFontStyle("B")
@@ -912,7 +917,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 				pdf.Rect(margin, y, 210-margin*2, 5, "F")
 
 				// Write the header line
-				text := fmt.Sprintf("Component Aperture %d", childApertureNo)
+				text := fmt.Sprintf(t.ComponentAperture, childApertureNo)
 				textWd := pdf.GetStringWidth(text)
 				pdf.SetTextColor(0, 0, 0)
 				pdf.SetFontStyle("B")
@@ -939,10 +944,10 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetTextColor(88, 144, 82)
 			pdf.SetFontStyle("B")
 			pdf.SetXY(margin, y)
-			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("SKU : %s - %d", aperture.GetUnitFullName(), aperture.GetID()), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf(t.Sku, aperture.GetUnitFullName(), aperture.GetID()), "", 0, "CM", false, 0, "")
 
 			pdf.SetXY(middleLineX, y)
-			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %dx%d mm", aperture.ActualWidth, aperture.ActualHeight), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf(t.Dimensions, aperture.ActualWidth, aperture.ActualHeight), "", 0, "CM", false, 0, "")
 
 			y += hLineGap
 		}
@@ -961,7 +966,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetFontSize(6)
 			pdf.SetTextColor(77, 77, 79)
 			pdf.SetXY(21.6, y+3.5)
-			pdf.CellFormat(5, 2, fmt.Sprintf("Unit:%s / Pcs:%d", aperture.GetUnitFullName(), aperture.GetQuantity()), "", 0, "TL", false, 0, "")
+			pdf.CellFormat(5, 2, fmt.Sprintf(t.UnitPieces, aperture.GetUnitFullName(), aperture.GetQuantity()), "", 0, "TL", false, 0, "")
 
 			// Draw the image together with dimensions
 			ext := ""
@@ -1090,7 +1095,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 			// Write the label under the image
 			{
-				const label = "Interior View"
+				label := t.InteriorView
 
 				pdf.SetFontSize(7)
 				pdf.SetFontStyle("")
@@ -1118,49 +1123,49 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetFontStyle("")
 			y += 3.5
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Brand :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.Brand, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.Profile.Brand, "", 0, "TL", false, 0, "")
 
 			// Serie Line
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Series :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.Series, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.Profile.Serie, "", 0, "TL", false, 0, "")
 
 			// System Type
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "System Type :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.SystemType, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.FriendlyName, "", 0, "TL", false, 0, "")
 
 			// Profile Thickness
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Profile Thickness :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.ProfileThickness, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, fmt.Sprintf("%.0f mm", aperture.Profile.SystemThickness), "", 0, "TL", false, 0, "")
 
 			// Material
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Material :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.Material, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.Profile.Material, "", 0, "TL", false, 0, "")
 
 			// Color
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Color :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.Color, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.Color.FriendlyName, "", 0, "TL", false, 0, "")
 
 			// Glass
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Glass :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.GlassLabel, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, aperture.Glass.GlazingStructure, "", 0, "TL", false, 0, "")
 
@@ -1170,7 +1175,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 				for _, accessory := range accessoryPieces {
 					pdf.SetXY(col1X, y+lineHt)
-					pdf.CellFormat(col1Width, 2, "Accessory :", "", 0, "TR", false, 0, "")
+					pdf.CellFormat(col1Width, 2, t.Accessory, "", 0, "TR", false, 0, "")
 
 					accessoryLines := pdf.SplitLines([]byte(accessory), col2Width)
 					for _, accessoryLine := range accessoryLines {
@@ -1183,16 +1188,16 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 			// Insect screen
 			{
-				value := "Not included"
+				value := t.NotIncluded
 				if aperture.NetsQuantity >= 1 {
-					value = "Included"
+					value = t.Included
 					if description := strings.TrimSpace(aperture.NetDescription); description != "" {
 						value = description
 					}
 				}
 
 				pdf.SetXY(col1X, y+lineHt)
-				pdf.CellFormat(col1Width, 2, "Insect screen :", "", 0, "TR", false, 0, "")
+				pdf.CellFormat(col1Width, 2, t.InsectScreen, "", 0, "TR", false, 0, "")
 
 				// The value may take more than one line
 				for _, piece := range strings.Split(value, "\n") {
@@ -1208,14 +1213,14 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			y += lineHt
 			area := float64(aperture.ActualWidth) * float64(aperture.ActualHeight) / 1000000.0
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Total Area (SQM) :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.TotalAreaSqm, "", 0, "TR", false, 0, "")
 			pdf.SetXY(col2X, y)
 			pdf.CellFormat(col2Width, 2, fmt.Sprintf("%.2f", area), "", 0, "TL", false, 0, "")
 
 			// Glass U-Value
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Insulation Val-Glass :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.InsulationGlass, "", 0, "TR", false, 0, "")
 			text := strings.Replace(fmt.Sprintf("%.2f W/m", aperture.Glass.UValue), ".", ",", 1)
 			textWd := pdf.GetStringWidth(text)
 			pdf.SetXY(col2X, y)
@@ -1229,7 +1234,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			// Profile U-Value
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Insulation Val-Profile :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.InsulationProfile, "", 0, "TR", false, 0, "")
 			text = strings.Replace(fmt.Sprintf("%.2f W/m", aperture.Profile.UValue), ".", ",", 1)
 			textWd = pdf.GetStringWidth(text)
 			pdf.SetXY(col2X, y)
@@ -1243,7 +1248,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			// Overall U-Value
 			y += lineHt
 			pdf.SetXY(col1X, y)
-			pdf.CellFormat(col1Width, 2, "Insulation Val-Product :", "", 0, "TR", false, 0, "")
+			pdf.CellFormat(col1Width, 2, t.InsulationProduct, "", 0, "TR", false, 0, "")
 			text = strings.Replace(fmt.Sprintf("%.2f W/m", aperture.OverallUValue), ".", ",", 1)
 			textWd = pdf.GetStringWidth(text)
 			pdf.SetFontStyle("B")
@@ -1259,7 +1264,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			// Note
 			if aperture.SupplierComment != "" {
 				pdf.SetXY(col1X, y+lineHt)
-				pdf.CellFormat(col1Width, 2, "Note :", "", 0, "TR", false, 0, "")
+				pdf.CellFormat(col1Width, 2, t.Note, "", 0, "TR", false, 0, "")
 
 				noteLines := pdf.SplitLines([]byte(aperture.SupplierComment), col2Width)
 				for _, noteLine := range noteLines {
@@ -1294,7 +1299,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetTextColor(72, 68, 135)
 			pdf.SetFontStyle("B")
 			pdf.SetXY(margin+67, y)
-			pdf.CellFormat(67, hLineGap, fmt.Sprintf("Quantity : %d,00", aperture.Quantity), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(67, hLineGap, fmt.Sprintf(t.Quantity, aperture.Quantity), "", 0, "CM", false, 0, "")
 
 			// Draw the Bottom Line
 			y += hLineGap + 2.8
@@ -1339,7 +1344,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 		// The heading bar
 		pdf.SetFillColor(155, 194, 230)
 		pdf.Rect(margin, y, 210-margin*2, barHt, "F")
-		text := "Summary"
+		text := t.Summary
 		pdf.SetTextColor(0, 0, 0)
 		pdf.SetFontStyle("B")
 		pdf.SetFontSize(11)
@@ -1355,8 +1360,8 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 
 		pdf.SetFontSize(9)
 		rows := []struct{ label, value string }{
-			{"Total Area (SQM) :", fmt.Sprintf("%.2f", totalArea)},
-			{"Amount of Apertures :", formatters.ToReadableWholeNumber(amountOfApertures)},
+			{t.TotalAreaSqm, fmt.Sprintf("%.2f", totalArea)},
+			{t.AmountOfApertures, formatters.ToReadableWholeNumber(amountOfApertures)},
 		}
 		y += 1
 		for _, row := range rows {

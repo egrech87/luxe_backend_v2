@@ -33,10 +33,15 @@ func MergePdfBytes(fileBytesList ...[]byte) ([]byte, error) {
 
 // AddPageNumbers stamps "Page n of N" at the bottom centre of every page of the given PDF.
 func AddPageNumbers(pdfBytes []byte) ([]byte, error) {
+	return AddPageNumbersText(pdfBytes, "Page %p of %P")
+}
+
+// AddPageNumbersText stamps the given text at the bottom centre of every page of the given PDF.
+// In the text, %p is the current page number and %P the total number of pages. The text can only use characters of the standard PDF font.
+func AddPageNumbersText(pdfBytes []byte, text string) ([]byte, error) {
 	config := model.NewDefaultConfiguration()
 
-	// %p is the current page number and %P the total number of pages
-	wm, err := api.TextWatermark("Page %p of %P", "pos:bc, off:0 8, scale:1 abs, points:9, rot:0, fillc:#444444", true, false, types.POINTS)
+	wm, err := api.TextWatermark(text, "pos:bc, off:0 8, scale:1 abs, points:9, rot:0, fillc:#444444", true, false, types.POINTS)
 	if err != nil {
 		return nil, err
 	}

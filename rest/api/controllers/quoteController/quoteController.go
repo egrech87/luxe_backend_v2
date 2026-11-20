@@ -530,6 +530,23 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		return
 	}
 
+	// "language" (en or tr) says which language the fixed texts of the report are written in. English is the default.
+	language := supplierPdf.LanguageEnglish
+	{
+		languageText, err := apiUtils.HttpQueryString(c, "language", false)
+		if err != nil {
+			apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+			return
+		}
+		if languageText != nil {
+			language, err = supplierPdf.ParseLanguage(*languageText)
+			if err != nil {
+				apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}
+
 	// "include-bom" is always sent: section 2 of the report is only included when it is true
 	includeBom, err := apiUtils.HttpQueryBool(c, "include-bom", true)
 	if err != nil {
@@ -694,7 +711,7 @@ func GenerateSupplierInvoice(c *gin.Context) {
 		return
 	}
 
-	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions, *includeBom, documentType)
+	pdfBytes, err := supplierPdf.Generate(quote, mainApertureList, datasheetList, termsAndConditions, *includeBom, documentType, language)
 	if err != nil {
 		apiUtils.HttpError(c.Writer, logger.GetInstance(), err.Error(), http.StatusInternalServerError)
 		return
