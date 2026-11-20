@@ -112,6 +112,9 @@ func (d *ApertureDao) ApplySelect(tx *gorm.DB, subItemList []string, excludeFiel
 	if !slices.Contains(excludeFields, "profile_id") {
 		fieldNames = append(fieldNames, fmt.Sprintf("aperture_profile_id(apertures.id) as %s_profile_id", tableName))
 	}
+	if !slices.Contains(excludeFields, "accessories") {
+		fieldNames = append(fieldNames, fmt.Sprintf("aperture_accessories(apertures.id) as %s_accessories", tableName))
+	}
 	if !slices.Contains(excludeFields, "color_price_factor") {
 		fieldNames = append(fieldNames, fmt.Sprintf("aperture_color_price_factor(apertures.id) as %s_color_price_factor", tableName))
 	}

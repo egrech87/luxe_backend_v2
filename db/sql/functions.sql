@@ -1467,3 +1467,22 @@ BEGIN
 	RETURN sumContingencyCost;
 END;
 $contingencyCost$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION aperture_accessories(apertureId bigint)
+RETURNS text AS $accessories$
+declare
+	profilesAccessories text;
+	customAccessories text;
+	isAccessoriesCustom BOOLEAN;
+BEGIN
+   	SELECT profiles.accessories, apertures.accessories, apertures.is_accessories_custom INTO profilesAccessories, customAccessories, isAccessoriesCustom
+	FROM profiles INNER JOIN apertures ON profiles.id = aperture_profile_id(apertureId)
+	WHERE apertures.id=apertureId;
+	
+	IF isAccessoriesCustom THEN
+		RETURN customAccessories;
+	END IF;
+   
+   	RETURN profilesAccessories;
+END;
+$accessories$ LANGUAGE plpgsql;
