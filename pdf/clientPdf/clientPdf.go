@@ -564,7 +564,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 		pdf.SetXY(col1.X, 22.5)
 		pdf.CellFormat(col1.Wd, 5, "Block", "", 0, "MC", true, 0, "")
 		pdf.SetXY(col2.X, 22.5)
-		pdf.CellFormat(col2.Wd, 5, "Facade", "", 0, "MC", true, 0, "")
+		pdf.CellFormat(col2.Wd, 5, "Room", "", 0, "MC", true, 0, "")
 		pdf.SetXY(col3.X, 22.5)
 		pdf.CellFormat(col3.Wd, 5, "Unit", "", 0, "MC", true, 0, "")
 		pdf.SetTextColor(255, 0, 0)
@@ -626,7 +626,7 @@ func generateSection2(mainApertureList []*apertureEntity.ApertureEntity) ([]byte
 				cellList[0].Text = fmt.Sprintf("BLOCK %s", aperture.Block)
 				cellList[0].Align = "C"
 
-				cellList[1].Text = fmt.Sprintf("Facade %s", aperture.Facade)
+				cellList[1].Text = aperture.Facade
 				cellList[1].Align = "C"
 
 				cellList[2].Text = fmt.Sprintf("%s", aperture.GetUnitFullName())
