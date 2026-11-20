@@ -45,6 +45,7 @@ type ApertureEntity struct {
 	Comment                             string                       `json:"comment" structs:"comment"`
 	SupplierComment                     string                       `json:"supplier_comment" structs:"supplier_comment"`
 	Accessories                         string                       `json:"accessories" structs:"accessories"`
+	IsAccessoriesCustom                 bool                         `json:"is_accessories_custom" structs:"is_accessories_custom" gorm:"default:false"`
 	ColorPriceFactor                    float64                      `json:"color_price_factor" structs:"color_price_factor"`
 	IsColorPriceFactorCustom            bool                         `json:"is_color_price_factor_custom" structs:"is_color_price_factor_custom"`
 	GlassPriceFactor                    float64                      `json:"glass_price_factor" structs:"glass_price_factor"`
@@ -213,6 +214,9 @@ func (e *ApertureEntity) GetSupplierComment() string {
 }
 func (e *ApertureEntity) GetAccessories() string {
 	return e.Accessories
+}
+func (e *ApertureEntity) GetIsAccessoriesCustom() bool {
+	return e.IsAccessoriesCustom
 }
 func (e *ApertureEntity) GetColorPriceFactor() float64 {
 	return e.ColorPriceFactor
@@ -471,6 +475,9 @@ func (e *ApertureEntity) SetSupplierComment(value string) {
 func (e *ApertureEntity) SetAccessories(value string) {
 	e.Accessories = value
 }
+func (e *ApertureEntity) SetIsAccessoriesCustom(value bool) {
+	e.IsAccessoriesCustom = value
+}
 func (e *ApertureEntity) SetColorPriceFactor(value float64) {
 	e.ColorPriceFactor = value
 }
@@ -646,7 +653,7 @@ func TableName() string {
 
 func (e *ApertureEntity) FieldNames() []string {
 	result := e.BaseEntity.FieldNames()
-	return append(result, []string{"is_friendly_name_custom", "block", "facade", "unit_name", "unit_number", "width", "height", "is_area_custom", "is_overall_u_value_custom", "actual_width", "actual_height", "is_type_custom", "is_handle_custom", "is_image_id_custom", "quantity", "comment", "supplier_comment", "accessories", "is_color_price_factor_custom", "is_glass_price_factor_custom", "is_color_cost_custom", "is_glass_cost_custom", "is_matrix_cost_custom", "is_nets_price_custom", "is_nets_cost_custom", "net_description", "order_reference", "is_supplier_cost_custom", "is_shipping_cost_custom", "is_installation_per_unit_custom", "is_installation_cost_custom", "is_contingency_cost_custom", "is_item_cost_custom", "is_profit_margin_custom", "is_selling_price_custom", "is_discounted_selling_price_custom", "is_total_area_custom", "is_total_selling_price_custom", "is_total_discounted_selling_price_custom", "is_total_cost_custom", "is_total_profit_custom", "quote_id", "is_profile_id_custom", "is_glass_id_custom", "is_color_id_custom", "parent_aperture_id"}...)
+	return append(result, []string{"is_friendly_name_custom", "block", "facade", "unit_name", "unit_number", "width", "height", "is_area_custom", "is_overall_u_value_custom", "actual_width", "actual_height", "is_type_custom", "is_handle_custom", "is_image_id_custom", "quantity", "comment", "supplier_comment", "is_accessories_custom", "is_color_price_factor_custom", "is_glass_price_factor_custom", "is_color_cost_custom", "is_glass_cost_custom", "is_matrix_cost_custom", "is_nets_price_custom", "is_nets_cost_custom", "net_description", "order_reference", "is_supplier_cost_custom", "is_shipping_cost_custom", "is_installation_per_unit_custom", "is_installation_cost_custom", "is_contingency_cost_custom", "is_item_cost_custom", "is_profit_margin_custom", "is_selling_price_custom", "is_discounted_selling_price_custom", "is_total_area_custom", "is_total_selling_price_custom", "is_total_discounted_selling_price_custom", "is_total_cost_custom", "is_total_profit_custom", "quote_id", "is_profile_id_custom", "is_glass_id_custom", "is_color_id_custom", "parent_aperture_id"}...)
 }
 
 func (e *ApertureEntity) ToJson() map[string]any {
@@ -1173,6 +1180,9 @@ func (e *ApertureEntity) GetUpdates(oldItem baseEntity.BaseEntityI) map[string]a
 	}
 	if e.Accessories != oldAperture.Accessories {
 		updates["accessories"] = e.Accessories
+	}
+	if e.IsAccessoriesCustom != oldAperture.IsAccessoriesCustom {
+		updates["is_accessories_custom"] = e.IsAccessoriesCustom
 	}
 	if e.ColorPriceFactor != oldAperture.ColorPriceFactor {
 		updates["color_price_factor"] = e.ColorPriceFactor
