@@ -919,7 +919,7 @@ func generateSection3(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 			pdf.SetTextColor(88, 144, 82)
 			pdf.SetFontStyle("B")
 			pdf.SetXY(margin, y)
-			pdf.CellFormat(middleLineX-margin, hLineGap, fmt.Sprintf("SKU : %s - %d", aperture.GetUnitFullName(), aperture.GetID()), "", 0, "CM", false, 0, "")
+			pdf.CellFormat(middleLineX-margin, hLineGap, skuHeading(aperture), "", 0, "CM", false, 0, "")
 
 			pdf.SetXY(middleLineX, y)
 			pdf.CellFormat(210-margin-middleLineX, hLineGap, fmt.Sprintf("Dimensions (W x H) : %dx%d mm", aperture.GetWidth(), aperture.GetHeight()), "", 0, "CM", false, 0, "")
@@ -1672,4 +1672,16 @@ func generateSection4(quote *quoteEntity.QuoteEntity, mainApertureList []*apertu
 	}
 
 	return buff.Bytes(), nil
+}
+
+// skuHeading returns the heading of an aperture in section 3: "SKU : Unit Name - Room - Id".
+// The room is left out when the aperture has none, to avoid an empty gap between the dashes.
+func skuHeading(aperture *apertureEntity.ApertureEntity) string {
+	parts := []string{aperture.GetUnitFullName()}
+	if room := strings.TrimSpace(aperture.GetFacade()); room != "" {
+		parts = append(parts, room)
+	}
+	parts = append(parts, fmt.Sprintf("%d", aperture.GetID()))
+
+	return "SKU : " + strings.Join(parts, " - ")
 }
