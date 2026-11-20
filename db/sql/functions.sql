@@ -1476,7 +1476,7 @@ declare
 	isAccessoriesCustom BOOLEAN;
 BEGIN
    	SELECT profiles.accessories, apertures.accessories, apertures.is_accessories_custom INTO profilesAccessories, customAccessories, isAccessoriesCustom
-	FROM profiles INNER JOIN apertures ON profiles.id = aperture_profile_id(apertureId)
+	FROM profiles RIGHT OUTER JOIN apertures ON profiles.id = aperture_profile_id(apertureId)
 	WHERE apertures.id=apertureId;
 	
 	IF isAccessoriesCustom THEN
