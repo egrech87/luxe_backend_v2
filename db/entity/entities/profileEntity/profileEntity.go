@@ -18,6 +18,7 @@ type ProfileEntity struct {
 	Brand                 string                         `json:"brand" structs:"brand"`
 	Serie                 string                         `json:"serie" structs:"serie"`
 	Material              string                         `json:"material" structs:"material"`
+	Accessories           string                         `json:"accessories" structs:"accessories" gorm:"default:''"`
 	SystemThickness       float64                        `json:"system_thickness" structs:"system_thickness"`
 	PriceMatrix           string                         `json:"price_matrix" structs:"price_matrix"` // json data
 	LeftImageId           *uint64                        `json:"left_image_id" structs:"left_image_id"`
@@ -49,6 +50,9 @@ func (e *ProfileEntity) GetSerie() string {
 }
 func (e *ProfileEntity) GetMaterial() string {
 	return e.Material
+}
+func (e *ProfileEntity) GetAccessories() string {
+	return e.Accessories
 }
 func (e *ProfileEntity) GetSystemThickness() float64 {
 	return e.SystemThickness
@@ -83,6 +87,9 @@ func (e *ProfileEntity) SetSerie(value string) {
 func (e *ProfileEntity) SetMaterial(value string) {
 	e.Material = value
 }
+func (e *ProfileEntity) SetAccessories(value string) {
+	e.Accessories = value
+}
 func (e *ProfileEntity) SetSystemThickness(value float64) {
 	e.SystemThickness = value
 }
@@ -114,7 +121,7 @@ func TableName() string {
 
 func (e *ProfileEntity) FieldNames() []string {
 	result := e.BaseEntity.FieldNames()
-	return append(result, []string{"friendly_name", "brand", "serie", "material", "system_thickness", "left_image_id", "right_image_id", "price_matrix", "u_value", "datasheet_id", "supplier_id"}...)
+	return append(result, []string{"friendly_name", "brand", "serie", "material", "accessories", "system_thickness", "left_image_id", "right_image_id", "price_matrix", "u_value", "datasheet_id", "supplier_id"}...)
 }
 
 func (e *ProfileEntity) ToJson() map[string]any {
@@ -246,6 +253,9 @@ func (e *ProfileEntity) GetUpdates(oldItem baseEntity.BaseEntityI) map[string]an
 	}
 	if e.Material != oldProfile.Material {
 		updates["material"] = e.Material
+	}
+	if e.Accessories != oldProfile.Accessories {
+		updates["accessories"] = e.Accessories
 	}
 	if e.SystemThickness != oldProfile.SystemThickness {
 		updates["system_thickness"] = e.SystemThickness
